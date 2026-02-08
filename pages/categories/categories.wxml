@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="type-tab">
+    <view class="tab-item {{type === 'expense' ? 'active' : ''}}" bindtap="changeType" data-type="expense">支出项目</view>
+    <view class="tab-item {{type === 'income' ? 'active' : ''}}" bindtap="changeType" data-type="income">收入项目</view>
+  </view>
+
+  <view class="category-grid">
+    <view wx:for="{{categories}}" wx:key="name" class="category-item">
+      <view class="cat-icon">{{item.icon}}</view>
+      <text class="cat-name">{{item.name}}</text>
+      <view class="remove" bindtap="removeCategory" data-val="{{item.name}}">×</view>
+    </view>
+    <view class="category-item add" bindtap="showAddModal">+</view>
+  </view>
+
+  <!-- Add Modal -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-content">
+      <view class="modal-title">自定义项目</view>
+      <input class="modal-input" placeholder="输入项目名称" bindinput="onNameInput" value="{{newName}}" focus />
+      <view class="modal-footer">
+        <button bindtap="hideAddModal">取消</button>
+        <button class="confirm" bindtap="addCategory">添加</button>
+      </view>
+    </view>
+  </view>
+</view>

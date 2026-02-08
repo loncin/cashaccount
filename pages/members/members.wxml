@@ -1,0 +1,32 @@
+<view class="container">
+  <view class="header">
+    <text class="title">账本成员</text>
+    <view class="header-btns">
+      <button class="share-btn" open-type="share">邀请好友</button>
+      <view class="add-btn" bindtap="showAddModal">+ 手动添加</view>
+    </view>
+  </view>
+
+  <view class="member-list">
+    <view wx:for="{{members}}" wx:key="id" class="member-item">
+      <view class="member-info">
+        <view class="avatar">{{item.name[0]}}</view>
+        <text class="name">{{item.name}}</text>
+        <text class="tag" wx:if="{{item.isOwner}}">创建者</text>
+      </view>
+      <view class="delete-btn" wx:if="{{!item.isOwner}}" bindtap="deleteMember" data-id="{{item.id}}">移除</view>
+    </view>
+  </view>
+
+  <!-- 模拟添加成员的弹窗 -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-content">
+      <view class="modal-title">邀请成员</view>
+      <input class="modal-input" placeholder="输入成员昵称" bindinput="onNameInput" value="{{newName}}" focus />
+      <view class="modal-footer">
+        <button class="cancel" bindtap="hideAddModal">取消</button>
+        <button class="confirm" bindtap="addMember">确定</button>
+      </view>
+    </view>
+  </view>
+</view>

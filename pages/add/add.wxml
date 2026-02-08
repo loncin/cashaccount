@@ -1,0 +1,127 @@
+<view class="container">
+  <view class="type-switch">
+    <view class="switch-item {{type === 'expense' ? 'active expense' : ''}}" bindtap="changeType" data-type="expense">支出</view>
+    <view class="switch-item {{type === 'income' ? 'active income' : ''}}" bindtap="changeType" data-type="income">收入</view>
+  </view>
+
+  <view class="form-container">
+    <view class="form-item">
+      <text class="label">金额</text>
+      <input class="input" type="digit" placeholder="0.00" value="{{amount}}" bindinput="onAmountInput" focus />
+      <view class="ocr-btn" bindtap="scanInvoice">
+        <text>📷 识别</text>
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">项目</text>
+      <view class="picker-val" bindtap="showCategoryModal">
+        {{categories[categoryIndex] ? (categories[categoryIndex].icon + ' ' + categories[categoryIndex].name) : '请选择'}}
+      </view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">日期</text>
+      <view class="picker-val" bindtap="showCalendarModal">{{date}}</view>
+    </view>
+
+    <view class="form-item">
+      <text class="label">成员</text>
+      <picker bindchange="onMemberChange" value="{{memberIndex}}" range="{{memberNames}}">
+        <view class="picker-val">{{memberNames[memberIndex] || '请选择'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">账户</text>
+      <picker bindchange="onAccountChange" value="{{accountIndex}}" range="{{accountNames}}">
+        <view class="picker-val">{{accountNames[accountIndex] || '请选择'}}</view>
+      </picker>
+    </view>
+
+    <view class="form-item">
+      <text class="label">备注</text>
+      <input class="input" placeholder="点击输入备注" value="{{note}}" bindinput="onNoteInput" />
+    </view>
+
+    <!-- 图片凭证 -->
+    <view class="form-item no-border">
+      <text class="label">凭证</text>
+      <view class="image-uploader">
+        <view class="img-preview" wx:if="{{tempImagePath}}" bindtap="previewImage">
+          <image src="{{tempImagePath}}" mode="aspectFill"></image>
+          <view class="img-remove" catchtap="removeImage">×</view>
+        </view>
+        <view class="upload-btn" bindtap="chooseImage" wx:else>
+          <icon type="add" size="30" color="#ccc"></icon>
+        </view>
+      </view>
+    </view>
+
+    <!-- 周期性记账 -->
+    <view class="form-item">
+      <text class="label">周期记账</text>
+      <switch checked="{{isRecurring}}" bindchange="onRecurringChange" color="#4facfe"></switch>
+    </view>
+
+    <view class="form-item" wx:if="{{isRecurring}}">
+      <text class="label">重复周期</text>
+      <picker bindchange="onPeriodChange" value="{{periodIndex}}" range="{{periods}}">
+        <view class="picker-val">{{periods[periodIndex]}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <button class="submit-btn {{type}}" bindtap="submit">{{isEdit ? '确认修改' : '保存'}}</button>
+
+  <!-- 日历弹窗 -->
+  <view class="calendar-modal {{showCalendar ? 'show' : ''}}">
+    <view class="calendar-mask" bindtap="hideCalendarModal"></view>
+    <view class="calendar-content">
+      <view class="calendar-header">
+        <view class="calendar-title">选择日期</view>
+        <view class="month-selector">
+          <view class="month-arrow" bindtap="prevMonth">◀</view>
+          <view class="current-month">{{currentYear}}年{{currentMonth}}月</view>
+          <view class="month-arrow" bindtap="nextMonth">▶</view>
+        </view>
+        <view class="confirm-btn" bindtap="hideCalendarModal">确定</view>
+      </view>
+      <view class="weekdays">
+        <view wx:for="{{['日','一','二','三','四','五','六']}}" wx:key="*this">{{item}}</view>
+      </view>
+      <view class="days-grid">
+        <view class="day-item {{item.isEmpty ? 'empty' : ''}} {{item.fullDate === date ? 'selected' : ''}}" 
+              wx:for="{{calendarDays}}" 
+              wx:key="fullDate" 
+              bindtap="onDaySelect" 
+              data-date="{{item.fullDate}}">
+          {{item.day}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 分类弹窗 -->
+  <view class="category-modal {{showCategory ? 'show' : ''}}">
+    <view class="category-mask" bindtap="hideCategoryModal"></view>
+    <view class="category-content">
+      <view class="category-header">
+        <view class="category-title">选择分类</view>
+        <view class="confirm-btn" bindtap="hideCategoryModal">取消</view>
+      </view>
+      <view class="category-grid">
+        <view class="category-item {{index === categoryIndex ? 'selected' : ''}}" 
+              wx:for="{{categories}}" 
+              wx:key="name" 
+              bindtap="onCategorySelect" 
+              data-index="{{index}}">
+          <view class="category-icon-wrapper">
+            <text class="category-icon">{{item.icon}}</text>
+          </view>
+          <text class="category-name">{{item.name}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

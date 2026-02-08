@@ -1,0 +1,89 @@
+<view class="container">
+  <!-- 资产概览 -->
+  <view class="overview-card">
+    <view class="card-header">
+      <view class="title">净资产</view>
+      <view class="header-actions">
+        <view class="export-btn" bindtap="importScreenshot">截图导入</view>
+        <view class="export-btn" bindtap="exportData">导出数据</view>
+      </view>
+    </view>
+    <view class="amount {{netAsset >= 0 ? 'plus' : 'minus'}}">{{netAsset}}</view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <text class="label">本月收入</text>
+        <text class="value income">{{monthlyIncome}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="label">本月支出</text>
+        <text class="value expense">{{monthlyExpense}}</text>
+      </view>
+    </view>
+    
+    <!-- 预算进度 -->
+    <view class="budget-section" bindtap="showBudgetModal">
+      <view class="budget-info">
+        <text class="label">本月预算: {{budget > 0 ? budget : '未设置'}}</text>
+        <text class="remain" wx:if="{{budget > 0}}">剩余: {{budgetRemain}}</text>
+      </view>
+      <view class="budget-progress" wx:if="{{budget > 0}}">
+        <view class="progress-bar {{budgetPercent > 90 ? 'danger' : ''}}" style="width: {{budgetPercent}}%"></view>
+      </view>
+      <view class="set-hint" wx:else>点击设置本月预算，控制消费</view>
+    </view>
+  </view>
+
+  <!-- 预算设置弹窗 -->
+  <view class="modal" wx:if="{{showBudgetModal}}">
+    <view class="modal-content">
+      <view class="modal-title">设置本月预算</view>
+      <input class="modal-input" type="digit" placeholder="输入预算金额" bindinput="onBudgetInput" value="{{newBudget}}" focus />
+      <view class="modal-footer">
+        <button class="cancel" bindtap="hideBudgetModal">取消</button>
+        <button class="confirm" bindtap="saveBudget">保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <icon type="search" size="14"></icon>
+    <input type="text" placeholder="搜索分类或备注" value="{{searchKeyword}}" bindinput="onSearchInput" />
+    <view class="calendar-icon" bindtap="goToCalendar">📅</view>
+    <icon type="clear" size="14" wx:if="{{searchKeyword}}" bindtap="clearSearch"></icon>
+  </view>
+
+  <!-- 时间筛选 -->
+  <view class="filter-bar">
+    <picker mode="date" fields="{{filterType}}" value="{{filterDate}}" bindchange="onDateChange">
+      <view class="picker">
+        {{filterDateDisplay}} ▼
+      </view>
+    </picker>
+    <view class="type-selector">
+      <text class="{{filterType === 'day' ? 'active' : ''}}" bindtap="changeFilterType" data-type="day">天</text>
+      <text class="{{filterType === 'month' ? 'active' : ''}}" bindtap="changeFilterType" data-type="month">月</text>
+      <text class="{{filterType === 'year' ? 'active' : ''}}" bindtap="changeFilterType" data-type="year">年</text>
+    </view>
+  </view>
+
+  <!-- 流水列表 -->
+  <scroll-view class="transaction-list" scroll-y>
+    <view wx:if="{{filteredTransactions.length === 0}}" class="empty">暂无数据</view>
+    <view wx:for="{{filteredTransactions}}" wx:key="_id" class="transaction-item" bindtap="onItemClick" data-id="{{item._id}}">
+      <view class="item-icon">{{item.categoryIcon || '📦'}}</view>
+      <view class="item-left">
+        <view class="category">{{item.category}}</view>
+        <view class="info">
+          <text class="member">{{item.memberName}}</text>
+          <text class="account-tag" wx:if="{{item.accountName}}">{{item.accountName}}</text>
+          <text class="date">{{item.date}}</text>
+          <text class="receipt-tag" wx:if="{{item.receiptUrl}}" catchtap="previewReceipt" data-url="{{item.receiptUrl}}">📷 凭证</text>
+        </view>
+      </view>
+      <view class="item-right {{item.type === 'income' ? 'plus' : 'minus'}}">
+        {{item.type === 'income' ? '+' : '-'}}{{item.amount}}
+      </view>
+    </view>
+  </scroll-view>
+</view>

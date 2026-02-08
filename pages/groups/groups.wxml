@@ -1,0 +1,33 @@
+<view class="container">
+  <view class="header">
+    <text class="title">我的账本</text>
+    <view class="add-btn" bindtap="showAddModal">+ 新建账本</view>
+  </view>
+
+  <view class="group-list">
+    <view wx:for="{{myGroups}}" wx:key="groupId" class="group-item {{item.groupId === currentGroupId ? 'active' : ''}}" bindtap="switchGroup" data-id="{{item.groupId}}">
+      <view class="group-info">
+        <view class="group-icon">{{item.name[0]}}</view>
+        <view class="group-detail">
+          <text class="group-name">{{item.name}}</text>
+          <text class="group-status" wx:if="{{item.groupId === currentGroupId}}">当前使用中</text>
+        </view>
+      </view>
+      <icon type="success_no_circle" size="20" color="#4facfe" wx:if="{{item.groupId === currentGroupId}}"></icon>
+    </view>
+  </view>
+
+  <view class="hint">点击条目即可切换当前记账账本</view>
+
+  <!-- 新建弹窗 -->
+  <view class="modal" wx:if="{{showAddModal}}">
+    <view class="modal-content">
+      <view class="modal-title">新建共享账本</view>
+      <input class="modal-input" placeholder="输入账本名称" bindinput="onNameInput" value="{{newGroupName}}" focus />
+      <view class="modal-footer">
+        <button class="cancel" bindtap="hideAddModal">取消</button>
+        <button class="confirm" bindtap="createGroup">创建</button>
+      </view>
+    </view>
+  </view>
+</view>

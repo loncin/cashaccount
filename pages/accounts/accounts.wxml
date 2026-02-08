@@ -1,0 +1,46 @@
+<view class="container">
+  <view class="header">
+    <text class="title">资金账户</text>
+    <view class="add-btn" bindtap="showAddModal">+ 添加账户</view>
+  </view>
+
+  <view class="account-list">
+    <view wx:for="{{accounts}}" wx:key="_id" class="account-item">
+      <view class="acc-info">
+        <view class="acc-icon">{{item.icon}}</view>
+        <view class="acc-detail">
+          <text class="acc-name">{{item.name}}</text>
+          <text class="acc-balance">余额: ¥{{item.currentBalance}}</text>
+        </view>
+      </view>
+      <view class="acc-actions">
+        <text class="del" bindtap="deleteAccount" data-id="{{item._id}}">删除</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Add Modal -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-content">
+      <view class="modal-title">添加新账户</view>
+      <view class="input-group">
+        <text>名称:</text>
+        <input class="modal-input" placeholder="如: 支付宝、招行卡" bindinput="onNameInput" value="{{newName}}" />
+      </view>
+      <view class="input-group">
+        <text>初始余额:</text>
+        <input class="modal-input" type="digit" placeholder="0.00" bindinput="onBalanceInput" value="{{newBalance}}" />
+      </view>
+      <view class="input-group">
+        <text>图标:</text>
+        <picker bindchange="onIconChange" value="{{iconIndex}}" range="{{icons}}">
+          <view class="picker-val">{{icons[iconIndex]}}</view>
+        </picker>
+      </view>
+      <view class="modal-footer">
+        <button class="cancel" bindtap="hideAddModal">取消</button>
+        <button class="confirm" bindtap="addAccount">创建</button>
+      </view>
+    </view>
+  </view>
+</view>

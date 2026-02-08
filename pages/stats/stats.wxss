@@ -1,0 +1,158 @@
+.header {
+  background: white;
+  width: 100%;
+  padding: 20rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.type-switch {
+  display: flex;
+  width: 60%;
+  border: 1rpx solid #4facfe;
+  border-radius: 30rpx;
+  overflow: hidden;
+  margin-bottom: 20rpx;
+}
+
+.type-switch .item {
+  flex: 1;
+  text-align: center;
+  padding: 10rpx 0;
+  font-size: 26rpx;
+  color: #4facfe;
+}
+
+.type-switch .item.active.expense { background: #fa5151; color: white; border: none; }
+.type-switch .item.active.income { background: #07c160; color: white; border: none; }
+
+.range-switch text {
+  padding: 10rpx 30rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.range-switch text.active {
+  color: #333;
+  font-weight: bold;
+  border-bottom: 4rpx solid #4facfe;
+}
+
+.date-picker-row {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  padding: 30rpx 0;
+  align-items: center;
+}
+
+.total-box {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.total-box .amount {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+  margin-left: 10rpx;
+}
+
+.chart-container {
+  background: white;
+  width: 90%;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+}
+
+.chart-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin-bottom: 30rpx;
+}
+
+.bar-chart {
+  white-space: nowrap;
+  height: 250rpx;
+  width: 100%;
+}
+
+.bar-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60rpx;
+  height: 100%;
+  margin-right: 10rpx;
+}
+
+.bar-wrap {
+  flex: 1;
+  width: 20rpx;
+  background: #f0f0f0;
+  border-radius: 10rpx;
+  position: relative;
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.bar {
+  width: 100%;
+  border-radius: 10rpx;
+}
+
+.bar.expense { background: #fa5151; opacity: 0.7; }
+.bar.income { background: #07c160; opacity: 0.7; }
+
+.bar-item .label {
+  font-size: 20rpx;
+  color: #999;
+  margin-top: 10rpx;
+}
+
+.category-list {
+  background: white;
+  width: 90%;
+  border-radius: 20rpx;
+  padding: 30rpx;
+  margin-bottom: 100rpx;
+}
+
+.cat-item {
+  margin-bottom: 30rpx;
+}
+
+.cat-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.cat-icon {
+  font-size: 36rpx;
+  margin-right: 15rpx;
+}
+
+.cat-name { font-size: 28rpx; flex: 1; }
+.cat-percent { font-size: 24rpx; color: #999; width: 100rpx; text-align: right; }
+.cat-amount { font-size: 28rpx; font-weight: 500; width: 150rpx; text-align: right; }
+
+.progress-bg {
+  height: 12rpx;
+  background: #f0f0f0;
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6rpx;
+}
+
+.progress-fill.expense { background: #fa5151; }
+.progress-fill.income { background: #07c160; }
+
+.empty { text-align: center; color: #ccc; padding: 50rpx 0; }

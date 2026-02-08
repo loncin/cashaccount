@@ -1,0 +1,116 @@
+.type-tab {
+  display: flex;
+  width: 100%;
+  background: white;
+  margin-bottom: 30rpx;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 30rpx 0;
+  font-size: 30rpx;
+  color: #666;
+  border-bottom: 4rpx solid transparent;
+}
+
+.tab-item.active {
+  color: #4facfe;
+  border-bottom-color: #4facfe;
+  font-weight: bold;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20rpx;
+  padding: 30rpx;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.category-item {
+  background: white;
+  height: 140rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10rpx;
+  position: relative;
+  font-size: 26rpx;
+}
+
+.cat-icon {
+  font-size: 44rpx;
+  margin-bottom: 10rpx;
+}
+
+.cat-name {
+  color: #333;
+}
+
+.category-item.add {
+  border: 2rpx dashed #ccc;
+  background: transparent;
+  font-size: 50rpx;
+  color: #999;
+}
+
+.remove {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  width: 30rpx;
+  height: 30rpx;
+  background: #fa5151;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20rpx;
+}
+
+/* Modal from members.wxss reuse or defined here */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal-content {
+  background: white;
+  width: 80%;
+  padding: 40rpx;
+  border-radius: 20rpx;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: bold;
+  margin-bottom: 40rpx;
+}
+
+.modal-input {
+  border: 1rpx solid #ddd;
+  padding: 20rpx;
+  border-radius: 10rpx;
+  margin-bottom: 40rpx;
+}
+
+.modal-footer {
+  display: flex;
+}
+
+.modal-footer button {
+  flex: 1;
+  margin: 0 10rpx;
+}
+
+.confirm { background: #4facfe; color: white; }

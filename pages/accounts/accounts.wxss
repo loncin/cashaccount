@@ -1,0 +1,123 @@
+.container {
+  padding: 30rpx;
+  align-items: stretch;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.header .title {
+  font-size: 36rpx;
+  font-weight: bold;
+}
+
+.add-btn {
+  color: #4facfe;
+  font-size: 30rpx;
+}
+
+.account-list {
+  background: white;
+  border-radius: 20rpx;
+  overflow: hidden;
+}
+
+.account-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.acc-info {
+  display: flex;
+  align-items: center;
+}
+
+.acc-icon {
+  font-size: 50rpx;
+  margin-right: 20rpx;
+}
+
+.acc-detail {
+  display: flex;
+  flex-direction: column;
+}
+
+.acc-name {
+  font-size: 32rpx;
+  font-weight: 500;
+}
+
+.acc-balance {
+  font-size: 24rpx;
+  color: #666;
+  margin-top: 6rpx;
+}
+
+.del {
+  color: #fa5151;
+  font-size: 26rpx;
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 80%;
+  padding: 40rpx;
+  border-radius: 20rpx;
+}
+
+.modal-title {
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: bold;
+  margin-bottom: 40rpx;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30rpx;
+}
+
+.input-group text {
+  width: 150rpx;
+  font-size: 28rpx;
+}
+
+.modal-input, .picker-val {
+  flex: 1;
+  border: 1rpx solid #ddd;
+  padding: 15rpx;
+  border-radius: 8rpx;
+  font-size: 28rpx;
+}
+
+.modal-footer {
+  display: flex;
+  margin-top: 20rpx;
+}
+
+.modal-footer button {
+  flex: 1;
+  margin: 0 10rpx;
+  font-size: 28rpx;
+}
+
+.confirm { background: #4facfe; color: white; }

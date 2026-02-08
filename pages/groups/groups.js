@@ -1,0 +1,111 @@
+Page({
+  data: {
+    myGroups: [],
+    currentGroupId: '',
+    showAddModal: false,
+    newGroupName: ''
+  },
+
+  onShow() {
+    const currentGroupId = wx.getStorageSync('currentGroupId');
+    this.setData({ currentGroupId });
+    this.loadGroups();
+  },
+
+  async loadGroups() {
+    wx.showLoading({ title: '加载中' });
+    try {
+      let groupIds = wx.getStorageSync('myGroupIds') || [];
+      const currentId = wx.getStorageSync('currentGroupId');
+      
+      if (currentId && !groupIds.includes(currentId)) {
+        groupIds.push(currentId);
+      }
+      
+      // 去重并过滤空值
+      groupIds = [...new Set(groupIds.filter(id => !!id))];
+      wx.setStorageSync('myGroupIds', groupIds);
+
+      // 并发获取账本信息
+      const promises = groupIds.map(id => 
+        wx.cloud.callFunction({
+          name: 'cloudApi',
+          data: {
+            action: 'getGroupInfo',
+            data: { groupId: id }
+          }
+        }).then(res => res.result.data || { _id: id, groupId: id, name: '未知账本' })
+          .catch(() => ({ _id: id, groupId: id, name: '加载失败' }))
+      );
+      
+      const myGroups = await Promise.all(promises);
+      this.setData({ myGroups, currentGroupId: currentId });
+    } catch (err) {
+      console.error('加载账本列表失败', err);
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  switchGroup(e) {
+    const groupId = e.currentTarget.dataset.id;
+    if (groupId === this.data.currentGroupId) return;
+
+    wx.setStorageSync('currentGroupId', groupId);
+    this.setData({ currentGroupId: groupId });
+    wx.showToast({ title: '切换成功' });
+    
+    setTimeout(() => {
+      wx.navigateBack();
+    }, 1000);
+  },
+
+  showAddModal() {
+    this.setData({ showAddModal: true, newGroupName: '' });
+  },
+
+  hideAddModal() {
+    this.setData({ showAddModal: false });
+  },
+
+  onNameInput(e) {
+    this.setData({ newGroupName: e.detail.value });
+  },
+
+  async createGroup() {
+    const name = this.data.newGroupName.trim();
+    if (!name) {
+      wx.showToast({ title: '请输入账本名称', icon: 'none' });
+      return;
+    }
+
+    wx.showLoading({ title: '创建中' });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'cloudApi',
+        data: { 
+          action: 'createGroup',
+          data: { name }
+        }
+      });
+      
+      const groupId = res.result.groupId;
+      
+      let groupIds = wx.getStorageSync('myGroupIds') || [];
+      if (!groupIds.includes(groupId)) {
+        groupIds.push(groupId);
+        wx.setStorageSync('myGroupIds', groupIds);
+      }
+
+      wx.setStorageSync('currentGroupId', groupId);
+      
+      this.setData({ showAddModal: false });
+      wx.showToast({ title: '创建成功' });
+      this.loadGroups();
+    } catch (err) {
+      console.error('创建失败', err);
+    } finally {
+      wx.hideLoading();
+    }
+  }
+})

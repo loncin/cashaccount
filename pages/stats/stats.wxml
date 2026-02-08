@@ -1,0 +1,69 @@
+<view class="container">
+  <!-- 头部筛选 -->
+  <view class="header">
+    <view class="type-switch">
+      <view class="item {{type === 'expense' ? 'active expense' : ''}}" bindtap="changeType" data-type="expense">支出</view>
+      <view class="item {{type === 'income' ? 'active income' : ''}}" bindtap="changeType" data-type="income">收入</view>
+    </view>
+    
+    <view class="range-switch">
+      <text class="{{rangeType === 'month' ? 'active' : ''}}" bindtap="changeRange" data-type="month">按月</text>
+      <text class="{{rangeType === 'year' ? 'active' : ''}}" bindtap="changeRange" data-type="year">按年</text>
+    </view>
+  </view>
+
+  <view class="date-picker-row">
+    <picker mode="date" fields="{{rangeType}}" value="{{date}}" bindchange="onDateChange">
+      <view class="picker">{{date}} ▼</view>
+    </picker>
+    <view class="total-box">
+      共{{type === 'expense' ? '支出' : '收入'}}: <text class="amount">{{totalAmount}}</text>
+    </view>
+  </view>
+
+  <!-- 趋势图 (简易柱状图) -->
+  <view class="chart-container">
+    <view class="chart-title">趋势分析</view>
+    <scroll-view scroll-x class="bar-chart">
+      <view class="bar-item" wx:for="{{trendData}}" wx:key="label">
+        <view class="bar-wrap">
+          <view class="bar {{type}}" style="height: {{item.height}}%"></view>
+        </view>
+        <view class="label">{{item.label}}</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 分类占比 -->
+  <view class="category-list">
+    <view class="chart-title">分类排行榜</view>
+    <view class="cat-item" wx:for="{{categoryStats}}" wx:key="name">
+      <view class="cat-info">
+        <text class="cat-icon">{{item.icon}}</text>
+        <text class="cat-name">{{item.name}}</text>
+        <text class="cat-percent">{{item.percent}}%</text>
+        <text class="cat-amount">{{item.amount}}</text>
+      </view>
+      <view class="progress-bg">
+        <view class="progress-fill {{type}}" style="width: {{item.percent}}%"></view>
+      </view>
+    </view>
+    <view wx:if="{{categoryStats.length === 0}}" class="empty">暂无记录</view>
+  </view>
+
+  <!-- 成员占比 -->
+  <view class="category-list" style="margin-top: 0;">
+    <view class="chart-title">成员{{type === 'expense' ? '消费' : '贡献'}}占比</view>
+    <view class="cat-item" wx:for="{{memberStats}}" wx:key="name">
+      <view class="cat-info">
+        <text class="cat-name">{{item.name}}</text>
+        <text class="cat-percent">{{item.percent}}%</text>
+        <text class="cat-amount">{{item.amount}}</text>
+      </view>
+      <view class="progress-bg">
+        <view class="progress-fill {{type}}" style="width: {{item.percent}}%"></view>
+      </view>
+    </view>
+    <view wx:if="{{memberStats.length === 0}}" class="empty">暂无记录</view>
+  </view>
+</view>

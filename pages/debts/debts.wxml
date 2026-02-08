@@ -1,0 +1,58 @@
+<view class="container">
+  <view class="header">
+    <text class="title">债务管理</text>
+    <view class="add-btn" bindtap="showAddModal">+ 新增债务</view>
+  </view>
+
+  <view class="debt-list">
+    <view wx:if="{{debts.length === 0}}" class="empty">暂无待处理债务</view>
+    <view wx:for="{{debts}}" wx:key="_id" class="debt-item" bindtap="settleDebt" data-item="{{item}}">
+      <view class="item-left">
+        <view class="person">{{item.personName}}</view>
+        <view class="note" wx:if="{{item.note}}">{{item.note}}</view>
+        <view class="type-tag {{item.type}}">{{item.type === 'lent' ? '我借出的' : '我欠人的'}}</view>
+      </view>
+      <view class="item-right {{item.type === 'lent' ? 'plus' : 'minus'}}">
+        ¥{{item.amount}}
+      </view>
+    </view>
+  </view>
+
+  <view class="hint">点击账目可进行还款/结算操作</view>
+
+  <!-- Add Modal -->
+  <view class="modal" wx:if="{{showModal}}">
+    <view class="modal-content">
+      <view class="modal-title">新增债务记录</view>
+      
+      <view class="type-switch">
+        <view class="switch-item {{type === 'lent' ? 'active lent' : ''}}" bindtap="changeType" data-type="lent">我借出</view>
+        <view class="switch-item {{type === 'borrowed' ? 'active borrowed' : ''}}" bindtap="changeType" data-type="borrowed">我借入</view>
+      </view>
+
+      <view class="input-group">
+        <text>对方姓名:</text>
+        <input class="modal-input" placeholder="输入姓名" bindinput="onInput" data-field="personName" value="{{personName}}" />
+      </view>
+      <view class="input-group">
+        <text>金额:</text>
+        <input class="modal-input" type="digit" placeholder="0.00" bindinput="onInput" data-field="amount" value="{{amount}}" />
+      </view>
+      <view class="input-group">
+        <text>关联账户:</text>
+        <picker bindchange="onAccountChange" value="{{accountIndex}}" range="{{accountNames}}">
+          <view class="picker-val">{{accountNames[accountIndex] || '不关联账户'}}</view>
+        </picker>
+      </view>
+      <view class="input-group">
+        <text>备注:</text>
+        <input class="modal-input" placeholder="选填" bindinput="onInput" data-field="note" value="{{note}}" />
+      </view>
+
+      <view class="modal-footer">
+        <button class="cancel" bindtap="hideAddModal">取消</button>
+        <button class="confirm" bindtap="addDebt">保存</button>
+      </view>
+    </view>
+  </view>
+</view>
