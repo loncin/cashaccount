@@ -3,6 +3,8 @@ Page({
     myGroups: [],
     currentGroupId: '',
     showAddModal: false,
+    isEdit: false,
+    editGroupId: '',
     newGroupName: ''
   },
 
@@ -76,11 +78,24 @@ Page({
   },
 
   showAddModal() {
-    this.setData({ showAddModal: true, newGroupName: '' });
+    this.setData({ showAddModal: true, isEdit: false, newGroupName: '' });
+  },
+
+  showEditModal(e) {
+    const id = e.currentTarget.dataset.id;
+    const group = this.data.myGroups.find(g => (g.groupId || g._id) === id);
+    if (!group) return;
+
+    this.setData({ 
+      showAddModal: true, 
+      isEdit: true, 
+      editGroupId: id,
+      newGroupName: group.name 
+    });
   },
 
   hideAddModal() {
-    this.setData({ showAddModal: false });
+    this.setData({ showAddModal: false, isEdit: false, editGroupId: '' });
   },
 
   onNameInput(e) {
@@ -94,31 +109,47 @@ Page({
       return;
     }
 
-    wx.showLoading({ title: '创建中' });
+    wx.showLoading({ title: this.data.isEdit ? '修改中' : '创建中' });
     try {
-      const res = await wx.cloud.callFunction({
-        name: 'cloudApi',
-        data: { 
-          action: 'createGroup',
-          data: { name }
+      if (this.data.isEdit) {
+        const updateRes = await wx.cloud.callFunction({
+          name: 'cloudApi',
+          data: {
+            action: 'updateGroupInfo',
+            data: { groupId: this.data.editGroupId, name }
+          }
+        });
+        
+        if (updateRes.result && updateRes.result.error) {
+          throw new Error(updateRes.result.error);
         }
-      });
-      
-      const groupId = res.result.groupId;
-      
-      let groupIds = wx.getStorageSync('myGroupIds') || [];
-      if (!groupIds.includes(groupId)) {
-        groupIds.push(groupId);
-        wx.setStorageSync('myGroupIds', groupIds);
-      }
+        
+        wx.showToast({ title: '修改成功' });
+      } else {
+        const res = await wx.cloud.callFunction({
+          name: 'cloudApi',
+          data: { 
+            action: 'createGroup',
+            data: { name }
+          }
+        });
+        
+        const groupId = res.result.groupId;
+        
+        let groupIds = wx.getStorageSync('myGroupIds') || [];
+        if (!groupIds.includes(groupId)) {
+          groupIds.push(groupId);
+          wx.setStorageSync('myGroupIds', groupIds);
+        }
 
-      wx.setStorageSync('currentGroupId', groupId);
+        wx.setStorageSync('currentGroupId', groupId);
+        wx.showToast({ title: '创建成功' });
+      }
       
-      this.setData({ showAddModal: false });
-      wx.showToast({ title: '创建成功' });
+      this.setData({ showAddModal: false, isEdit: false, editGroupId: '' });
       this.loadGroups();
     } catch (err) {
-      console.error('创建失败', err);
+      console.error('操作失败', err);
     } finally {
       wx.hideLoading();
     }

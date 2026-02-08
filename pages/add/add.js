@@ -429,7 +429,7 @@ Page({
 
       const transactionData = {
         type,
-        amount: Number(amount).toFixed(2),
+        amount: parseFloat(Number(amount).toFixed(2)),
         category: categories[categoryIndex].name,
         categoryIcon: categories[categoryIndex].icon,
         date,

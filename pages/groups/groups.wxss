@@ -80,6 +80,16 @@
   margin-top: 40rpx;
 }
 
+.group-actions {
+  display: flex;
+  align-items: center;
+}
+
+.edit-icon {
+  padding: 20rpx;
+  margin-right: 10rpx;
+}
+
 /* Modal reuse concepts */
 .modal {
   position: fixed;

@@ -10,15 +10,21 @@ Page({
   },
 
   onShow() {
-    this.initDate();
-    this.loadData();
+    const date = this.getInitialDate();
+    this.setData({ date }, () => {
+      this.loadData();
+    });
+  },
+
+  getInitialDate() {
+    const now = new Date();
+    return this.data.rangeType === 'month' 
+      ? `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`
+      : `${now.getFullYear()}`;
   },
 
   initDate() {
-    const now = new Date();
-    const date = this.data.rangeType === 'month' 
-      ? `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`
-      : `${now.getFullYear()}`;
+    const date = this.getInitialDate();
     this.setData({ date });
   },
 
@@ -40,6 +46,11 @@ Page({
   async loadData() {
     const { type, rangeType, date } = this.data;
     const groupId = wx.getStorageSync('currentGroupId');
+    
+    if (!groupId) {
+      console.warn('currentGroupId is missing');
+      return;
+    }
     
     wx.showLoading({ title: '统计中' });
     try {
@@ -68,7 +79,13 @@ Page({
       // 这里的 date 格式：Month: 'YYYY-MM', Year: 'YYYY'
       // cloudApi 的 getDetailedStats 正则是 '^' + month，所以传年份也能匹配整年
       
-      this.processAggregatedData(res.result);
+      if (res.result && !res.result.error) {
+        this.processAggregatedData(res.result);
+      } else {
+        console.error('统计加载失败', res.result ? res.result.error : '未知错误');
+        // 清空数据
+        this.processAggregatedData({});
+      }
     } catch (err) {
       console.error('统计加载失败', err);
     } finally {
@@ -77,6 +94,7 @@ Page({
   },
 
   processAggregatedData(data) {
+    if (!data) data = {};
     // 添加默认值处理，防止 undefined 错误
     const { categoryStats = [], dailyStats = [], memberStats = [] } = data;
     
@@ -86,23 +104,23 @@ Page({
     // 这里简化，假设云函数没返回 icon，我们先显示默认
     
     let total = 0;
-    categoryStats.forEach(c => total += c.total);
+    categoryStats.forEach(c => total += (c.total || 0));
     
     const processedCatStats = categoryStats.map(c => ({
       name: c._id,
-      amount: c.total.toFixed(2),
-      percent: total > 0 ? ((c.total / total) * 100).toFixed(1) : 0,
+      amount: (c.total || 0).toFixed(2),
+      percent: total > 0 ? (((c.total || 0) / total) * 100).toFixed(1) : 0,
       icon: '📦' // 暂时默认，后续优化
     }));
     
     // 处理成员统计
     let memberTotal = 0;
-    memberStats.forEach(m => memberTotal += m.total);
+    memberStats.forEach(m => memberTotal += (m.total || 0));
     
     const processedMemberStats = memberStats.map(m => ({
       name: m._id,
-      amount: m.total.toFixed(2),
-      percent: memberTotal > 0 ? ((m.total / memberTotal) * 100).toFixed(1) : 0
+      amount: (m.total || 0).toFixed(2),
+      percent: memberTotal > 0 ? (((m.total || 0) / memberTotal) * 100).toFixed(1) : 0
     }));
     
     // Trend data

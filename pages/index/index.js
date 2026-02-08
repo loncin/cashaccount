@@ -135,6 +135,10 @@ Page({
 
   async loadData() {
     const groupId = wx.getStorageSync('currentGroupId');
+    if (!groupId) {
+      console.warn('currentGroupId is missing');
+      return;
+    }
     wx.showLoading({ title: '加载中' });
     
     try {
@@ -167,39 +171,41 @@ Page({
         }
       });
         
-      this.setData({ transactions: res.result.list }, () => {
-        // 前端不再需要 filterTransactions (搜索已经在云端处理)
-        // 但为了兼容 searchInput 的实时体验，如果数据量小，也可以在前端过滤
-        // 这里采用云端过滤优先
-        this.setData({ filteredTransactions: res.result.list });
-        
-        // 解析统计数据
-        let netAsset = 0, monthlyIncome = 0, monthlyExpense = 0;
-        
-        if (statsRes.result) {
-           if (statsRes.result.month) {
-             statsRes.result.month.forEach(item => {
-               if (item._id === 'income') monthlyIncome = item.total || 0;
-               if (item._id === 'expense') monthlyExpense = item.total || 0;
-             });
-           }
-           
-           if (statsRes.result.total) {
-             let totalIncome = 0, totalExpense = 0;
-             statsRes.result.total.forEach(item => {
-               if (item._id === 'income') totalIncome = item.total || 0;
-               if (item._id === 'expense') totalExpense = item.total || 0;
-             });
-             netAsset = totalIncome - totalExpense;
-           }
-        }
+      if (!res.result || res.result.error) {
+        console.error('获取交易列表失败', res.result ? res.result.error : '未知错误');
+        this.setData({ transactions: [], filteredTransactions: [] });
+      } else {
+        this.setData({ transactions: res.result.list || [] }, () => {
+          this.setData({ filteredTransactions: res.result.list || [] });
+        });
+      }
 
-        this.setData({
-          netAsset: netAsset.toFixed(2),
-          monthlyIncome: monthlyIncome.toFixed(2),
-          monthlyExpense: monthlyExpense.toFixed(2)
-        }, () => this.calculateBudgetProgress());
-      });
+      // 解析统计数据
+      let netAsset = 0, monthlyIncome = 0, monthlyExpense = 0;
+      
+      if (statsRes.result && !statsRes.result.error) {
+         if (statsRes.result.month) {
+           statsRes.result.month.forEach(item => {
+             if (item._id === 'income') monthlyIncome = item.total || 0;
+             if (item._id === 'expense') monthlyExpense = item.total || 0;
+           });
+         }
+         
+         if (statsRes.result.total) {
+           let totalIncome = 0, totalExpense = 0;
+           statsRes.result.total.forEach(item => {
+             if (item._id === 'income') totalIncome = item.total || 0;
+             if (item._id === 'expense') totalExpense = item.total || 0;
+           });
+           netAsset = totalIncome - totalExpense;
+         }
+      }
+
+      this.setData({
+        netAsset: netAsset.toFixed(2),
+        monthlyIncome: monthlyIncome.toFixed(2),
+        monthlyExpense: monthlyExpense.toFixed(2)
+      }, () => this.calculateBudgetProgress());
     } catch (err) {
       console.error('获取数据失败', err);
     } finally {

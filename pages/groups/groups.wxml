@@ -13,7 +13,12 @@
           <text class="group-status" wx:if="{{item.groupId === currentGroupId}}">当前使用中</text>
         </view>
       </view>
-      <icon type="success_no_circle" size="20" color="#4facfe" wx:if="{{item.groupId === currentGroupId}}"></icon>
+      <view class="group-actions">
+        <view class="edit-icon" catchtap="showEditModal" data-id="{{item.groupId}}">
+          <icon type="info" size="20" color="#999"></icon>
+        </view>
+        <icon type="success_no_circle" size="20" color="#4facfe" wx:if="{{item.groupId === currentGroupId}}"></icon>
+      </view>
     </view>
   </view>
 
@@ -22,11 +27,11 @@
   <!-- 新建弹窗 -->
   <view class="modal" wx:if="{{showAddModal}}">
     <view class="modal-content">
-      <view class="modal-title">新建共享账本</view>
+      <view class="modal-title">{{isEdit ? '修改账本名称' : '新建共享账本'}}</view>
       <input class="modal-input" placeholder="输入账本名称" bindinput="onNameInput" value="{{newGroupName}}" focus />
       <view class="modal-footer">
         <button class="cancel" bindtap="hideAddModal">取消</button>
-        <button class="confirm" bindtap="createGroup">创建</button>
+        <button class="confirm" bindtap="createGroup">{{isEdit ? '保存' : '创建'}}</button>
       </view>
     </view>
   </view>

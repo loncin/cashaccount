@@ -94,13 +94,17 @@ exports.main = async (event, context) => {
       
       case 'updateGroupInfo': {
         const { groupId, name } = data
+        if (!groupId || !name) throw new Error('groupId and name are required')
+        
         await checkGroupPermission(groupId)
-        // 建议增加权限控制，如只允许创建者修改，或任意成员修改
-        // 这里暂时允许任意成员修改
+        
         const res = await db.collection('groups').doc(groupId).update({
-          data: { name, updateTime: db.serverDate() }
+          data: { 
+            name: name.trim(), 
+            updateTime: db.serverDate() 
+          }
         })
-        return res
+        return { success: true, res }
       }
 
       // --- Transactions ---
@@ -216,112 +220,57 @@ exports.main = async (event, context) => {
          const { groupId, month } = data
          await checkGroupPermission(groupId)
          
-         // 安全转换数字的辅助函数
-         const safeToDouble = (val) => {
-           if (typeof val === 'number') return val;
-           if (typeof val === 'string') {
-             const parsed = parseFloat(val);
-             return isNaN(parsed) ? 0 : parsed;
-           }
-           return 0;
-         };
-         
-         const res = await db.collection('transactions')
-           .aggregate()
-           .match({ groupId })
-           .group({
-             _id: '$type',
-             total: $.sum($.cond({
-               if: $.isNumber('$amount'),
-               then: '$amount',
-               else: $.toDouble('$amount')
-             }))
+         const allRes = await db.collection('transactions').where({ groupId }).limit(1000).get()
+         const monthRes = await db.collection('transactions').where({ 
+           groupId,
+           date: db.RegExp({ regexp: '^' + month })
+         }).limit(1000).get()
+
+         const aggregate = (list) => {
+           const stats = {}
+           list.forEach(item => {
+             const type = item.type || 'expense'
+             const amount = parseFloat(item.amount) || 0
+             stats[type] = (stats[type] || 0) + amount
            })
-           .end()
+           return Object.keys(stats).map(k => ({ _id: k, total: stats[k] }))
+         }
            
-         const monthRes = await db.collection('transactions')
-           .aggregate()
-           .match({ 
-             groupId,
-             date: db.RegExp({ regexp: '^' + month })
-           })
-           .group({
-             _id: '$type',
-             total: $.sum($.cond({
-               if: $.isNumber('$amount'),
-               then: '$amount',
-               else: $.toDouble('$amount')
-             }))
-           })
-           .end()
-           
-         return { total: res.list, month: monthRes.list }
+         return { total: aggregate(allRes.data), month: aggregate(monthRes.data) }
       }
       
       case 'getDetailedStats': {
          const { groupId, month, type } = data
          await checkGroupPermission(groupId)
          
-         // 按分类统计
-         const res = await db.collection('transactions')
-           .aggregate()
-           .match({ 
-             groupId, 
-             type, // 'expense' or 'income'
-             date: db.RegExp({ regexp: '^' + month })
-           })
-           .group({
-             _id: '$category',
-             total: $.sum($.cond({
-               if: $.isNumber('$amount'),
-               then: '$amount',
-               else: $.toDouble('$amount')
-             })),
-             count: $.sum(1)
-           })
-           .sort({ total: -1 })
-           .end()
+         const res = await db.collection('transactions').where({ 
+           groupId, 
+           type,
+           date: db.RegExp({ regexp: '^' + month })
+         }).limit(1000).get()
+
+         const list = res.data
+         const categoryMap = {}, dailyMap = {}, memberMap = {}
+
+         list.forEach(item => {
+           const amount = parseFloat(item.amount) || 0
+           const cat = item.category || '其他'
+           const date = item.date || ''
+           const member = item.memberName || '未知'
+
+           categoryMap[cat] = (categoryMap[cat] || 0) + amount
+           if (date) dailyMap[date] = (dailyMap[date] || 0) + amount
+           memberMap[member] = (memberMap[member] || 0) + amount
+         })
+
+         const toList = (map) => Object.keys(map).map(k => ({ _id: k, total: map[k] })).sort((a, b) => b.total - a.total)
+         const dailyList = Object.keys(dailyMap).map(k => ({ _id: k, total: dailyMap[k] })).sort((a, b) => a._id.localeCompare(b._id))
            
-         // 按日期统计（用于图表）
-         const dailyRes = await db.collection('transactions')
-           .aggregate()
-           .match({ 
-             groupId, 
-             type,
-             date: db.RegExp({ regexp: '^' + month })
-           })
-           .group({
-             _id: '$date',
-             total: $.sum($.cond({
-               if: $.isNumber('$amount'),
-               then: '$amount',
-               else: $.toDouble('$amount')
-             }))
-           })
-           .sort({ _id: 1 })
-           .end()
-           
-         // 按成员统计
-         const memberRes = await db.collection('transactions')
-           .aggregate()
-           .match({ 
-             groupId, 
-             type,
-             date: db.RegExp({ regexp: '^' + month })
-           })
-           .group({
-             _id: '$memberName',
-             total: $.sum($.cond({
-               if: $.isNumber('$amount'),
-               then: '$amount',
-               else: $.toDouble('$amount')
-             })),
-             count: $.sum(1)
-           })
-           .sort({ total: -1 })
-           .end()
-           
-         return { categoryStats: res.list, dailyStats: dailyRes.list, memberStats: memberRes.list }
+         return { 
+           categoryStats: toList(categoryMap), 
+           dailyStats: dailyList, 
+           memberStats: toList(memberMap) 
+         }
       }
 
       // --- Metadata (Categories, Members, Accounts) ---
