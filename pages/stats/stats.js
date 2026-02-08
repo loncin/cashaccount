@@ -55,20 +55,24 @@ Page({
     wx.showLoading({ title: '统计中' });
     try {
       // 通过云函数获取详细统计
-      // 注意：getDetailedStats 返回的格式是聚合过的 { categoryStats, dailyStats }
-      // 前端 processData 需要相应调整，或者让云函数返回原始数据
-      // 为了保持前端图表逻辑不变，我们暂时还是获取列表，但在列表较大时性能会差
-      // 更好的方式是 update cloudApi to return processed stats
-      
-      // 这里我们使用 getTransactions 配合 filter，但考虑到数据量，最好用聚合
-      // 使用 cloudApi 中新加的 getDetailedStats (假设已实现聚合)
+      const metaRes = await wx.cloud.callFunction({
+        name: 'cloudApi',
+        data: {
+          action: 'getMetadata',
+          data: { groupId }
+        }
+      });
+      if (metaRes.result && metaRes.result.categories) {
+        this.setData({ allCategories: metaRes.result.categories[0] || {} });
+      }
+
       const res = await wx.cloud.callFunction({
         name: 'cloudApi',
         data: {
           action: 'getDetailedStats',
           data: {
             groupId,
-            month: date, // 目前 getDetailedStats 只支持按月前缀匹配，如果 rangeType 是 year 需要调整云函数
+            month: date,
             type
           }
         }
@@ -110,7 +114,7 @@ Page({
       name: c._id,
       amount: (c.total || 0).toFixed(2),
       percent: total > 0 ? (((c.total || 0) / total) * 100).toFixed(1) : 0,
-      icon: '📦' // 暂时默认，后续优化
+      icon: this.getCategoryIcon(c._id)
     }));
     
     // 处理成员统计
@@ -168,5 +172,12 @@ Page({
       memberStats: processedMemberStats,
       trendData
     });
+  },
+
+  getCategoryIcon(name) {
+    if (!this.data.allCategories) return '📦';
+    const cats = [...(this.data.allCategories.expense || []), ...(this.data.allCategories.income || [])];
+    const cat = cats.find(c => c.name === name);
+    return cat ? cat.icon : '📦';
   }
 });

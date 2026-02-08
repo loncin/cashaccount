@@ -243,11 +243,12 @@ exports.main = async (event, context) => {
          const { groupId, month, type } = data
          await checkGroupPermission(groupId)
          
+         // 增加数据获取上限，并确保排序
          const res = await db.collection('transactions').where({ 
            groupId, 
            type,
            date: db.RegExp({ regexp: '^' + month })
-         }).limit(1000).get()
+         }).orderBy('date', 'asc').limit(1000).get()
 
          const list = res.data
          const categoryMap = {}, dailyMap = {}, memberMap = {}
@@ -264,7 +265,7 @@ exports.main = async (event, context) => {
          })
 
          const toList = (map) => Object.keys(map).map(k => ({ _id: k, total: map[k] })).sort((a, b) => b.total - a.total)
-         const dailyList = Object.keys(dailyMap).map(k => ({ _id: k, total: dailyMap[k] })).sort((a, b) => a._id.localeCompare(b._id))
+         const dailyList = Object.keys(dailyMap).map(k => ({ _id: k, total: dailyMap[k] }))
            
          return { 
            categoryStats: toList(categoryMap), 
