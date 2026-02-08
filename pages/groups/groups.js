@@ -47,7 +47,10 @@ Page({
               action: 'getGroupInfo',
               data: { groupId: id }
             }
-          }).then(res => res.result.data || { _id: id, groupId: id, name: '未知账本' })
+          }).then(res => {
+            const groupData = res.result.data || { _id: id, name: '未知账本' };
+            return { ...groupData, groupId: id }; // 确保每个对象都有固定的 groupId 字段
+          })
             .catch(() => ({ _id: id, groupId: id, name: '加载失败' }))
         );
         

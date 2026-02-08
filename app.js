@@ -1,5 +1,6 @@
 App({
   onLaunch(options) {
+    this.initPromise = null;
     if (!wx.cloud) {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力');
     } else {
@@ -95,29 +96,37 @@ App({
   },
 
   async initData() {
-    let groupId = wx.getStorageSync('currentGroupId');
-    if (!groupId) {
-      try {
-        const res = await wx.cloud.callFunction({
-          name: 'cloudApi',
-          data: { action: 'createGroup' }
-        });
-        
-        if (res.result && res.result.groupId) {
-          groupId = res.result.groupId;
-          wx.setStorageSync('currentGroupId', groupId);
+    if (this.initPromise) return this.initPromise;
+
+    this.initPromise = (async () => {
+      let groupId = wx.getStorageSync('currentGroupId');
+      if (!groupId) {
+        try {
+          const res = await wx.cloud.callFunction({
+            name: 'cloudApi',
+            data: { action: 'createGroup' }
+          });
           
-          let groupIds = [groupId];
-          wx.setStorageSync('myGroupIds', groupIds);
-        } else {
-          throw new Error('创建群组返回数据异常');
+          if (res.result && res.result.groupId) {
+            groupId = res.result.groupId;
+            wx.setStorageSync('currentGroupId', groupId);
+            
+            let groupIds = [groupId];
+            wx.setStorageSync('myGroupIds', groupIds);
+          } else {
+            throw new Error('创建群组返回数据异常');
+          }
+        } catch (err) {
+          console.error('初始化账本失败', err);
+          wx.showToast({ title: '初始化失败，请重试', icon: 'none' });
+          this.initPromise = null; // 失败后允许重试
+          throw err;
         }
-      } catch (err) {
-        console.error('初始化账本失败', err);
-        wx.showToast({ title: '初始化失败，请重试', icon: 'none' });
-        throw err; // 向上抛出错误以便调用方处理
       }
-    }
+      return groupId;
+    })();
+
+    return this.initPromise;
   },
   globalData: {
     userInfo: null

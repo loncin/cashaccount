@@ -20,8 +20,18 @@ Page({
 
   onShow() {
     this.initFilter();
-    this.loadData();
-    this.loadBudget();
+    // 确保 App 初始化完成后再加载数据
+    if (app.initData) {
+      app.initData().then(() => {
+        this.loadData();
+        this.loadBudget();
+      }).catch(err => {
+        console.error('App 初始化失败', err);
+      });
+    } else {
+      this.loadData();
+      this.loadBudget();
+    }
   },
 
   async loadBudget() {
@@ -136,7 +146,6 @@ Page({
   async loadData() {
     const groupId = wx.getStorageSync('currentGroupId');
     if (!groupId) {
-      console.warn('currentGroupId is missing');
       return;
     }
     wx.showLoading({ title: '加载中' });
