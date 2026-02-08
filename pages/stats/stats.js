@@ -77,7 +77,8 @@ Page({
   },
 
   processAggregatedData(data) {
-    const { categoryStats, dailyStats, memberStats = [] } = data;
+    // 添加默认值处理，防止 undefined 错误
+    const { categoryStats = [], dailyStats = [], memberStats = [] } = data;
     
     // categoryStats: [{ _id: '餐饮', total: 100, count: 5, icon: '...' }]
     // 注意：云函数聚合目前没返回 icon，需要在云函数里 lookup 或者前端匹配
@@ -106,19 +107,22 @@ Page({
     
     // Trend data
     const trendMap = {};
-    dailyStats.forEach(d => {
-       // d._id is 'YYYY-MM-DD'
-       let key = '';
-       if (this.data.rangeType === 'month') {
-         key = d._id.split('-')[2];
-       } else {
-         key = d._id.split('-')[1];
-       }
-       trendMap[key] = d.total;
-    });
+    if (Array.isArray(dailyStats)) {
+      dailyStats.forEach(d => {
+         // d._id is 'YYYY-MM-DD'
+         let key = '';
+         if (this.data.rangeType === 'month') {
+           key = d._id.split('-')[2];
+         } else {
+           key = d._id.split('-')[1];
+         }
+         trendMap[key] = d.total;
+      });
+    }
     
     const trendData = [];
-    const maxVal = Math.max(...Object.values(trendMap), 1);
+    const trendValues = Object.values(trendMap);
+    const maxVal = trendValues.length > 0 ? Math.max(...trendValues, 1) : 1;
     
     if (this.data.rangeType === 'month') {
       for (let i = 1; i <= 31; i++) {
