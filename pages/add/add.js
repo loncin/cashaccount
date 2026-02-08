@@ -54,6 +54,10 @@ Page({
 
   async initData() {
     const groupId = wx.getStorageSync('currentGroupId');
+    if (!groupId) {
+      console.warn('currentGroupId is missing');
+      return;
+    }
     const now = new Date();
     const today = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
 

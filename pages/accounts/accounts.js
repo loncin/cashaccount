@@ -56,7 +56,7 @@ Page({
           data: { groupId, limit: 1000 }
         }
       });
-      const transactions = transRes.result.list;
+      const transactions = transRes.result.list || [];
 
       // 计算每个账户的当前余额
       accounts = accounts.map(acc => {
