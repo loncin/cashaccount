@@ -145,6 +145,12 @@ Page({
   async settleDebt(e) {
     const debt = e.currentTarget.dataset.item;
     const { accounts, accountNames } = this.data;
+    
+    // 如果没有账户，直接标记为已清
+    if (accounts.length === 0) {
+      await this.doSettle(debt, null);
+      return;
+    }
 
     wx.showActionSheet({
       itemList: ['已还清/已收回 (并记录流水)', '仅标记已清'],
@@ -156,11 +162,19 @@ Page({
             success: async (accRes) => {
               const account = accounts[accRes.tapIndex];
               await this.doSettle(debt, account);
+            },
+            fail: (err) => {
+              // 用户取消选择账户
+              console.log('用户取消选择账户', err);
             }
           });
         } else {
           await this.doSettle(debt, null);
         }
+      },
+      fail: (err) => {
+        // 用户取消
+        console.log('用户取消操作', err);
       }
     });
   },

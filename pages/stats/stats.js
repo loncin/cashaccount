@@ -77,7 +77,7 @@ Page({
   },
 
   processAggregatedData(data) {
-    const { categoryStats, dailyStats } = data;
+    const { categoryStats, dailyStats, memberStats = [] } = data;
     
     // categoryStats: [{ _id: '餐饮', total: 100, count: 5, icon: '...' }]
     // 注意：云函数聚合目前没返回 icon，需要在云函数里 lookup 或者前端匹配
@@ -94,8 +94,15 @@ Page({
       icon: '📦' // 暂时默认，后续优化
     }));
     
-    // Member stats (cloudApi getDetailedStats 还没聚合 member，需要补充)
-    // 暂时置空或在云函数添加 memberStats
+    // 处理成员统计
+    let memberTotal = 0;
+    memberStats.forEach(m => memberTotal += m.total);
+    
+    const processedMemberStats = memberStats.map(m => ({
+      name: m._id,
+      amount: m.total.toFixed(2),
+      percent: memberTotal > 0 ? ((m.total / memberTotal) * 100).toFixed(1) : 0
+    }));
     
     // Trend data
     const trendMap = {};
@@ -136,7 +143,7 @@ Page({
     this.setData({
       totalAmount: total.toFixed(2),
       categoryStats: processedCatStats,
-      memberStats: [], // 暂不支持 member 统计，除非更新云函数
+      memberStats: processedMemberStats,
       trendData
     });
   }

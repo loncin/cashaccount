@@ -70,7 +70,9 @@ App({
                 const pages = getCurrentPages();
                 if (pages.length > 0) {
                   const currentPage = pages[pages.length - 1];
-                  currentPage.onShow();
+                  if (typeof currentPage.onShow === 'function') {
+                    currentPage.onShow();
+                  }
                 }
               } catch (err) {
                 console.error('加入群组失败', err);
@@ -83,7 +85,12 @@ App({
         });
       }
     } else {
-      await this.initData();
+      // 确保 initData 完成后再继续
+      try {
+        await this.initData();
+      } catch (err) {
+        console.error('初始化数据失败', err);
+      }
     }
   },
 
@@ -96,14 +103,19 @@ App({
           data: { action: 'createGroup' }
         });
         
-        groupId = res.result.groupId;
-        wx.setStorageSync('currentGroupId', groupId);
-        
-        let groupIds = [groupId];
-        wx.setStorageSync('myGroupIds', groupIds);
+        if (res.result && res.result.groupId) {
+          groupId = res.result.groupId;
+          wx.setStorageSync('currentGroupId', groupId);
+          
+          let groupIds = [groupId];
+          wx.setStorageSync('myGroupIds', groupIds);
+        } else {
+          throw new Error('创建群组返回数据异常');
+        }
       } catch (err) {
         console.error('初始化账本失败', err);
-        // Fallback or retry?
+        wx.showToast({ title: '初始化失败，请重试', icon: 'none' });
+        throw err; // 向上抛出错误以便调用方处理
       }
     }
   },

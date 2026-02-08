@@ -11,25 +11,43 @@ exports.main = async (event, context) => {
   // 统一权限检查方法
   const checkGroupPermission = async (groupId) => {
     if (!groupId) throw new Error('groupId is required')
+    if (typeof groupId !== 'string') throw new Error('groupId must be a string')
     
     // 查询群组信息
-    const groupRes = await db.collection('groups').doc(groupId).get().catch(() => null)
+    let groupRes;
+    try {
+      groupRes = await db.collection('groups').doc(groupId).get()
+    } catch (e) {
+      groupRes = null
+    }
     
     // 如果群组不存在，尝试自动创建（兼容旧数据或新群组）
     if (!groupRes || !groupRes.data) {
-       await db.collection('groups').add({
-         data: {
-           _id: groupId,
-           members: [OPENID],
-           createTime: db.serverDate(),
-           creator: OPENID
+       try {
+         await db.collection('groups').add({
+           data: {
+             _id: groupId,
+             members: [OPENID],
+             createTime: db.serverDate(),
+             creator: OPENID
+           }
+         })
+         return true
+       } catch (err) {
+         // 如果添加失败（可能因为并发），再试一次查询
+         try {
+           groupRes = await db.collection('groups').doc(groupId).get()
+           if (groupRes && groupRes.data && groupRes.data.members.includes(OPENID)) {
+             return true
+           }
+         } catch (e2) {
+           throw new Error('Permission denied: Cannot create or access group')
          }
-       })
-       return true
+       }
     }
 
     // 检查当前用户是否在成员列表中
-    if (!groupRes.data.members.includes(OPENID)) {
+    if (!groupRes.data.members || !groupRes.data.members.includes(OPENID)) {
       throw new Error('Permission denied: You are not a member of this group')
     }
     return true
@@ -198,12 +216,26 @@ exports.main = async (event, context) => {
          const { groupId, month } = data
          await checkGroupPermission(groupId)
          
+         // 安全转换数字的辅助函数
+         const safeToDouble = (val) => {
+           if (typeof val === 'number') return val;
+           if (typeof val === 'string') {
+             const parsed = parseFloat(val);
+             return isNaN(parsed) ? 0 : parsed;
+           }
+           return 0;
+         };
+         
          const res = await db.collection('transactions')
            .aggregate()
            .match({ groupId })
            .group({
              _id: '$type',
-             total: $.sum({ $toDouble: '$amount' }) // 确保amount是数字
+             total: $.sum($.cond({
+               if: $.isNumber('$amount'),
+               then: '$amount',
+               else: $.toDouble('$amount')
+             }))
            })
            .end()
            
@@ -215,7 +247,11 @@ exports.main = async (event, context) => {
            })
            .group({
              _id: '$type',
-             total: $.sum({ $toDouble: '$amount' })
+             total: $.sum($.cond({
+               if: $.isNumber('$amount'),
+               then: '$amount',
+               else: $.toDouble('$amount')
+             }))
            })
            .end()
            
@@ -236,7 +272,11 @@ exports.main = async (event, context) => {
            })
            .group({
              _id: '$category',
-             total: $.sum({ $toDouble: '$amount' }),
+             total: $.sum($.cond({
+               if: $.isNumber('$amount'),
+               then: '$amount',
+               else: $.toDouble('$amount')
+             })),
              count: $.sum(1)
            })
            .sort({ total: -1 })
@@ -252,12 +292,36 @@ exports.main = async (event, context) => {
            })
            .group({
              _id: '$date',
-             total: $.sum({ $toDouble: '$amount' })
+             total: $.sum($.cond({
+               if: $.isNumber('$amount'),
+               then: '$amount',
+               else: $.toDouble('$amount')
+             }))
            })
            .sort({ _id: 1 })
            .end()
            
-         return { categoryStats: res.list, dailyStats: dailyRes.list }
+         // 按成员统计
+         const memberRes = await db.collection('transactions')
+           .aggregate()
+           .match({ 
+             groupId, 
+             type,
+             date: db.RegExp({ regexp: '^' + month })
+           })
+           .group({
+             _id: '$memberName',
+             total: $.sum($.cond({
+               if: $.isNumber('$amount'),
+               then: '$amount',
+               else: $.toDouble('$amount')
+             })),
+             count: $.sum(1)
+           })
+           .sort({ total: -1 })
+           .end()
+           
+         return { categoryStats: res.list, dailyStats: dailyRes.list, memberStats: memberRes.list }
       }
 
       // --- Metadata (Categories, Members, Accounts) ---
@@ -460,9 +524,17 @@ exports.main = async (event, context) => {
         const { groupId } = data
         await checkGroupPermission(groupId)
         
+        // 获取当前日期（云函数运行在 UTC，需要正确处理时区）
         const now = new Date();
-        const localNow = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-        const todayStr = `${localNow.getFullYear()}-${(localNow.getMonth() + 1).toString().padStart(2, '0')}-${localNow.getDate().toString().padStart(2, '0')}`;
+        // 格式化为本地日期字符串 YYYY-MM-DD
+        const formatDateStr = (date) => {
+          const year = date.getFullYear();
+          const month = (date.getMonth() + 1).toString().padStart(2, '0');
+          const day = date.getDate().toString().padStart(2, '0');
+          return `${year}-${month}-${day}`;
+        };
+        
+        const todayStr = formatDateStr(now);
         
         const rules = await db.collection('recurring_rules')
           .where({
@@ -474,16 +546,23 @@ exports.main = async (event, context) => {
         let generatedCount = 0;
         
         for (const rule of rules.data) {
-           let lastDate = new Date(rule.lastGeneratedDate);
+           let lastDate = new Date(rule.lastGeneratedDate + 'T00:00:00');
            let nextDate = new Date(lastDate);
            
-           if (rule.period === '每天') nextDate.setDate(lastDate.getDate() + 1);
-           else if (rule.period === '每周') nextDate.setDate(lastDate.getDate() + 7);
-           else if (rule.period === '每月') nextDate.setMonth(lastDate.getMonth() + 1);
+           // 辅助函数：获取下一个日期
+           const getNextDate = (current, period) => {
+             const next = new Date(current);
+             if (period === '每天') next.setDate(next.getDate() + 1);
+             else if (period === '每周') next.setDate(next.getDate() + 7);
+             else if (period === '每月') next.setMonth(next.getMonth() + 1);
+             return next;
+           };
            
-           const nextDateStr = () => `${nextDate.getFullYear()}-${(nextDate.getMonth() + 1).toString().padStart(2, '0')}-${nextDate.getDate().toString().padStart(2, '0')}`;
+           nextDate = getNextDate(lastDate, rule.period);
            
-           while (nextDateStr() <= todayStr) {
+           while (formatDateStr(nextDate) <= todayStr) {
+              const dateStr = formatDateStr(nextDate);
+              
               await db.collection('transactions').add({
                 data: {
                   groupId: rule.groupId,
@@ -491,7 +570,7 @@ exports.main = async (event, context) => {
                   amount: rule.amount,
                   category: rule.category,
                   categoryIcon: rule.categoryIcon,
-                  date: nextDateStr(),
+                  date: dateStr,
                   memberName: rule.memberName,
                   note: rule.note,
                   createTime: db.serverDate(),
@@ -499,16 +578,14 @@ exports.main = async (event, context) => {
                 }
               });
               
-              let currentGenerated = nextDateStr();
-              
-              if (rule.period === '每天') nextDate.setDate(nextDate.getDate() + 1);
-              else if (rule.period === '每周') nextDate.setDate(nextDate.getDate() + 7);
-              else if (rule.period === '每月') nextDate.setMonth(nextDate.getMonth() + 1);
-              
               await db.collection('recurring_rules').doc(rule._id).update({
-                data: { lastGeneratedDate: currentGenerated }
+                data: { lastGeneratedDate: dateStr }
               });
+              
               generatedCount++;
+              
+              // 计算下一个日期
+              nextDate = getNextDate(nextDate, rule.period);
            }
         }
         return { generatedCount }

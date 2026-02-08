@@ -60,11 +60,12 @@ Page({
 
       // 计算每个账户的当前余额
       accounts = accounts.map(acc => {
-        let currentBalance = Number(acc.initialBalance || 0);
+        let currentBalance = parseFloat(acc.initialBalance || 0);
         transactions.forEach(t => {
           if (t.accountId === acc._id) {
-            if (t.type === 'income') currentBalance += Number(t.amount);
-            else currentBalance -= Number(t.amount);
+            const amount = parseFloat(t.amount) || 0;
+            if (t.type === 'income') currentBalance += amount;
+            else currentBalance -= amount;
           }
         });
         return { ...acc, currentBalance: currentBalance.toFixed(2) };

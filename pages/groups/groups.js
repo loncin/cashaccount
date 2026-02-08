@@ -26,22 +26,37 @@ Page({
       groupIds = [...new Set(groupIds.filter(id => !!id))];
       wx.setStorageSync('myGroupIds', groupIds);
 
-      // 并发获取账本信息
-      const promises = groupIds.map(id => 
-        wx.cloud.callFunction({
-          name: 'cloudApi',
-          data: {
-            action: 'getGroupInfo',
-            data: { groupId: id }
-          }
-        }).then(res => res.result.data || { _id: id, groupId: id, name: '未知账本' })
-          .catch(() => ({ _id: id, groupId: id, name: '加载失败' }))
-      );
+      // 如果没有账本，显示空列表
+      if (groupIds.length === 0) {
+        this.setData({ myGroups: [], currentGroupId: currentId });
+        return;
+      }
+
+      // 并发获取账本信息，限制并发数量
+      const concurrency = 5;
+      const myGroups = [];
       
-      const myGroups = await Promise.all(promises);
+      for (let i = 0; i < groupIds.length; i += concurrency) {
+        const batch = groupIds.slice(i, i + concurrency);
+        const promises = batch.map(id => 
+          wx.cloud.callFunction({
+            name: 'cloudApi',
+            data: {
+              action: 'getGroupInfo',
+              data: { groupId: id }
+            }
+          }).then(res => res.result.data || { _id: id, groupId: id, name: '未知账本' })
+            .catch(() => ({ _id: id, groupId: id, name: '加载失败' }))
+        );
+        
+        const batchResults = await Promise.all(promises);
+        myGroups.push(...batchResults);
+      }
+      
       this.setData({ myGroups, currentGroupId: currentId });
     } catch (err) {
       console.error('加载账本列表失败', err);
+      wx.showToast({ title: '加载失败', icon: 'none' });
     } finally {
       wx.hideLoading();
     }

@@ -174,29 +174,31 @@ Page({
         this.setData({ filteredTransactions: res.result.list });
         
         // 解析统计数据
-        if (statsRes.result && statsRes.result.month) {
-           let mIncome = 0;
-           let mExpense = 0;
-           statsRes.result.month.forEach(item => {
-             if (item._id === 'income') mIncome = item.total;
-             if (item._id === 'expense') mExpense = item.total;
-           });
-           
-           let totalIncome = 0;
-           let totalExpense = 0;
-           if (statsRes.result.total) {
-             statsRes.result.total.forEach(item => {
-               if (item._id === 'income') totalIncome = item.total;
-               if (item._id === 'expense') totalExpense = item.total;
+        let netAsset = 0, monthlyIncome = 0, monthlyExpense = 0;
+        
+        if (statsRes.result) {
+           if (statsRes.result.month) {
+             statsRes.result.month.forEach(item => {
+               if (item._id === 'income') monthlyIncome = item.total || 0;
+               if (item._id === 'expense') monthlyExpense = item.total || 0;
              });
            }
-
-           this.setData({
-             netAsset: (totalIncome - totalExpense).toFixed(2),
-             monthlyIncome: mIncome.toFixed(2),
-             monthlyExpense: mExpense.toFixed(2)
-           }, () => this.calculateBudgetProgress());
+           
+           if (statsRes.result.total) {
+             let totalIncome = 0, totalExpense = 0;
+             statsRes.result.total.forEach(item => {
+               if (item._id === 'income') totalIncome = item.total || 0;
+               if (item._id === 'expense') totalExpense = item.total || 0;
+             });
+             netAsset = totalIncome - totalExpense;
+           }
         }
+
+        this.setData({
+          netAsset: netAsset.toFixed(2),
+          monthlyIncome: monthlyIncome.toFixed(2),
+          monthlyExpense: monthlyExpense.toFixed(2)
+        }, () => this.calculateBudgetProgress());
       });
     } catch (err) {
       console.error('获取数据失败', err);

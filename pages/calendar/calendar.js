@@ -157,13 +157,22 @@ Page({
 
   async deleteTransaction(id) {
     const groupId = wx.getStorageSync('currentGroupId');
-    await wx.cloud.callFunction({
-       name: 'cloudApi',
-       data: {
-         action: 'deleteTransaction',
-         data: { id, groupId }
-       }
-    });
-    this.loadMonthlyData();
+    wx.showLoading({ title: '删除中' });
+    try {
+      await wx.cloud.callFunction({
+        name: 'cloudApi',
+        data: {
+          action: 'deleteTransaction',
+          data: { id, groupId }
+        }
+      });
+      wx.showToast({ title: '删除成功' });
+      this.loadMonthlyData();
+    } catch (err) {
+      console.error('删除失败', err);
+      wx.showToast({ title: '删除失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
   }
 });

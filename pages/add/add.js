@@ -395,13 +395,23 @@ Page({
     const { isEdit, editId, type, amount, categories, categoryIndex, date, members, memberIndex, accounts, accountIndex, note, tempImagePath } = this.data;
     const groupId = wx.getStorageSync('currentGroupId');
 
+    if (!groupId) {
+      wx.showToast({ title: '请先创建或加入账本', icon: 'none' });
+      return;
+    }
+
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
       wx.showToast({ title: '请输入有效金额', icon: 'none' });
       return;
     }
 
-    if (accounts.length === 0) {
+    if (!accounts || accounts.length === 0) {
       wx.showToast({ title: '请先创建账户', icon: 'none' });
+      return;
+    }
+
+    if (!members || members.length === 0 || !categories || categories.length === 0) {
+      wx.showToast({ title: '数据加载中，请稍后重试', icon: 'none' });
       return;
     }
 
@@ -464,16 +474,23 @@ Page({
           const newTotal = totalSpent + Number(amount);
           if (newTotal > budgetAmount) {
             const over = (newTotal - budgetAmount).toFixed(2);
-            await new Promise((resolve) => {
+            const userConfirmed = await new Promise((resolve) => {
               wx.showModal({
                 title: '预算超支提醒',
                 content: `本次支出后，本月总支出将达到 ${newTotal.toFixed(2)}，超出预算 ${over}。确定要保存吗？`,
                 success: (res) => {
-                  if (res.confirm) resolve();
-                  else throw new Error('user_cancelled');
+                  resolve(res.confirm);
+                },
+                fail: () => {
+                  resolve(false);
                 }
               });
             });
+            
+            if (!userConfirmed) {
+              wx.hideLoading();
+              return; // 用户取消，不保存
+            }
           }
         }
       }
@@ -512,7 +529,8 @@ Page({
              note: transactionData.note + ' (周期性自动记账)',
              period: this.data.periods[this.data.periodIndex],
              lastGeneratedDate: transactionData.date,
-             isActive: true
+             isActive: true,
+             groupId // 添加 groupId 字段
           };
           
           await wx.cloud.callFunction({
@@ -539,10 +557,8 @@ Page({
         this.setData({ amount: '', note: '', isEdit: false, editId: '' });
       }, 1000);
     } catch (err) {
-      if (err.message !== 'user_cancelled') {
-        console.error('提交失败', err);
-        wx.showToast({ title: '保存失败', icon: 'none' });
-      }
+      console.error('提交失败', err);
+      wx.showToast({ title: '保存失败', icon: 'none' });
     } finally {
       wx.hideLoading();
     }
