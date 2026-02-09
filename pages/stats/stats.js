@@ -10,9 +10,19 @@ Page({
   },
 
   onShow() {
-    const date = this.getInitialDate();
-    this.setData({ date }, () => {
-      this.loadData();
+    const app = getApp();
+    // 确保初始化日期后再执行后续逻辑
+    this.initDate(() => {
+      if (app.initData) {
+        app.initData().then(() => {
+          this.loadData();
+        }).catch(err => {
+          console.error('统计页面等待初始化失败', err);
+          this.loadData(); // 尝试直接加载
+        });
+      } else {
+        this.loadData();
+      }
     });
   },
 
@@ -23,9 +33,9 @@ Page({
       : `${now.getFullYear()}`;
   },
 
-  initDate() {
+  initDate(callback) {
     const date = this.getInitialDate();
-    this.setData({ date });
+    this.setData({ date }, typeof callback === 'function' ? callback : null);
   },
 
   changeType(e) {
@@ -33,9 +43,11 @@ Page({
   },
 
   changeRange(e) {
-    this.setData({ rangeType: e.currentTarget.dataset.type }, () => {
-      this.initDate();
-      this.loadData();
+    const rangeType = e.currentTarget.dataset.type;
+    this.setData({ rangeType }, () => {
+      this.initDate(() => {
+        this.loadData();
+      });
     });
   },
 
@@ -54,39 +66,29 @@ Page({
     
     wx.showLoading({ title: '统计中' });
     try {
-      // 通过云函数获取详细统计
-      const metaRes = await wx.cloud.callFunction({
-        name: 'cloudApi',
-        data: {
-          action: 'getMetadata',
-          data: { groupId }
-        }
-      });
+      // 并发获取元数据和统计数据，提高效率
+      const [metaRes, statsRes] = await Promise.all([
+        wx.cloud.callFunction({
+          name: 'cloudApi',
+          data: { action: 'getMetadata', data: { groupId } }
+        }),
+        wx.cloud.callFunction({
+          name: 'cloudApi',
+          data: {
+            action: 'getDetailedStats',
+            data: { groupId, month: date, type }
+          }
+        })
+      ]);
+
       if (metaRes.result && metaRes.result.categories) {
         this.setData({ allCategories: metaRes.result.categories[0] || {} });
       }
 
-      const res = await wx.cloud.callFunction({
-        name: 'cloudApi',
-        data: {
-          action: 'getDetailedStats',
-          data: {
-            groupId,
-            month: date,
-            type
-          }
-        }
-      });
-      
-      // 如果 rangeType 是 year，云函数 getDetailedStats 的正则匹配可能需要调整
-      // 为了兼容年视图，我们在云函数调用前判断
-      // 这里的 date 格式：Month: 'YYYY-MM', Year: 'YYYY'
-      // cloudApi 的 getDetailedStats 正则是 '^' + month，所以传年份也能匹配整年
-      
-      if (res.result && !res.result.error) {
-        this.processAggregatedData(res.result);
+      if (statsRes.result && !statsRes.result.error) {
+        this.processAggregatedData(statsRes.result);
       } else {
-        console.error('统计加载失败', res.result ? res.result.error : '未知错误');
+        console.error('统计加载失败', statsRes.result ? statsRes.result.error : '未知错误');
         // 清空数据
         this.processAggregatedData({});
       }
