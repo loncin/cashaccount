@@ -357,7 +357,7 @@ Page({
     });
 
     const fs = wx.getFileSystemManager();
-    const filePath = `${wx.env.USER_DATA_PATH}/账单导出_${new Date().getTime()}.csv`;
+    const filePath = `${wx.env.USER_DATA_PATH}/账单导出_${new Date().getTime()}.xls`;
 
     fs.writeFile({
       filePath: filePath,
@@ -367,6 +367,7 @@ Page({
         wx.hideLoading();
         wx.openDocument({
           filePath: filePath,
+          fileType: 'xls',
           showMenu: true, // 允许转发分享
           success: () => {
             console.log('打开文档成功');
@@ -404,6 +405,10 @@ Page({
 
   onItemClick(e) {
     const id = e.currentTarget.dataset.id;
+    if (!id) {
+      console.warn('Transaction ID is missing');
+      return;
+    }
     wx.showActionSheet({
       itemList: ['编辑', '删除'],
       itemColor: '#333',
@@ -413,13 +418,19 @@ Page({
         } else if (res.tapIndex === 1) {
           this.deleteTransaction(id);
         }
+      },
+      fail: (err) => {
+        console.error('ActionSheet failed', err);
       }
     });
   },
 
   editTransaction(id) {
-    wx.navigateTo({
-      url: `/pages/add/add?id=${id}`
+    // 因为 pages/add/add 是 TabBar 页面，不能使用 navigateTo 传参
+    // 使用全局变量传递 ID 并通过 switchTab 跳转
+    app.globalData.editId = id;
+    wx.switchTab({
+      url: '/pages/add/add'
     });
   },
 

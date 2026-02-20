@@ -49,6 +49,20 @@ Page({
   },
 
   onShow() {
+    const app = getApp();
+    if (app.globalData && app.globalData.editId) {
+      const id = app.globalData.editId;
+      app.globalData.editId = null; // 消费掉 ID
+      this.setData({
+        isEdit: true,
+        editId: id
+      });
+      wx.setNavigationBarTitle({ title: '编辑账单' });
+    } else if (!this.data.isEdit) {
+      // 正常点击 Tab 进入，确保是新增模式
+      wx.setNavigationBarTitle({ title: '记账' });
+    }
+    
     this.initData();
   },
 
@@ -553,11 +567,7 @@ Page({
       });
       
       setTimeout(() => {
-        if (isEdit) {
-          wx.navigateBack();
-        } else {
-          wx.switchTab({ url: '/pages/index/index' });
-        }
+        wx.switchTab({ url: '/pages/index/index' });
         this.setData({ amount: '', note: '', isEdit: false, editId: '' });
       }, 1000);
     } catch (err) {

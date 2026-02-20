@@ -70,7 +70,7 @@
   <!-- 流水列表 -->
   <scroll-view class="transaction-list" scroll-y>
     <view wx:if="{{filteredTransactions.length === 0}}" class="empty">暂无数据</view>
-    <view wx:for="{{filteredTransactions}}" wx:key="_id" class="transaction-item" bindtap="onItemClick" data-id="{{item._id}}">
+    <view wx:for="{{filteredTransactions}}" wx:key="_id" class="transaction-item" catchtap="onItemClick" data-id="{{item._id}}">
       <view class="item-icon">{{item.categoryIcon || '📦'}}</view>
       <view class="item-left">
         <view class="category">{{item.category}}</view>
