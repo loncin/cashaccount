@@ -1,4 +1,7 @@
 <view class="container">
+  <view class="top-bar">
+    <view class="home-btn" bindtap="goHome">🏠 首页</view>
+  </view>
   <view class="type-switch">
     <view class="switch-item {{type === 'expense' ? 'active expense' : ''}}" bindtap="changeType" data-type="expense">支出</view>
     <view class="switch-item {{type === 'income' ? 'active income' : ''}}" bindtap="changeType" data-type="income">收入</view>

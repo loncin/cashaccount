@@ -9,6 +9,12 @@ Page({
     trendData: [] // For bar chart
   },
 
+  goHome() {
+    wx.reLaunch({
+      url: '/pages/portal/index'
+    });
+  },
+
   onShow() {
     const app = getApp();
     // 确保初始化日期后再执行后续逻辑

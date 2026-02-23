@@ -2,6 +2,7 @@
   <!-- 资产概览 -->
   <view class="overview-card">
     <view class="card-header">
+      <view class="home-btn" bindtap="goHome">🏠 首页</view>
       <view class="title">净资产</view>
       <view class="header-actions">
         <view class="export-btn" bindtap="importScreenshot">截图导入</view>

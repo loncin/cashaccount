@@ -18,6 +18,12 @@ Page({
     filteredTransactions: []
   },
 
+  goHome() {
+    wx.reLaunch({
+      url: '/pages/portal/index'
+    });
+  },
+
   onShow() {
     this.initFilter();
     // 确保 App 初始化完成后再加载数据

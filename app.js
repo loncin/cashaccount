@@ -67,14 +67,10 @@ App({
                 }
 
                 wx.showToast({ title: '已切换账本', icon: 'success' });
-                // 重新加载当前页面
-                const pages = getCurrentPages();
-                if (pages.length > 0) {
-                  const currentPage = pages[pages.length - 1];
-                  if (typeof currentPage.onShow === 'function') {
-                    currentPage.onShow();
-                  }
-                }
+                // 跳转到账本首页
+                wx.switchTab({
+                  url: '/pages/index/index'
+                });
               } catch (err) {
                 console.error('加入群组失败', err);
                 wx.showToast({ title: '加入失败', icon: 'none' });

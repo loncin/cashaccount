@@ -1,0 +1,76 @@
+<view class="container">
+  <view class="header">
+    <text class="title">✨ 来点不一样的</text>
+    <text class="subtitle">AI 驱动的冷门推荐</text>
+  </view>
+  
+  <view class="section card">
+    <text class="section-title">选择推荐类型</text>
+    <view class="type-grid">
+      <view class="type-item {{recommendType === 'destination' ? 'active' : ''}}" bindtap="selectType" data-type="destination">
+        <text class="icon">🏔️</text>
+        <text class="name">冷门目的地</text>
+        <text class="desc">发现小众旅行地</text>
+      </view>
+      <view class="type-item {{recommendType === 'flight' ? 'active' : ''}}" bindtap="selectType" data-type="flight">
+        <text class="icon">✈️</text>
+        <text class="name">冷门航班</text>
+        <text class="desc">独特航线体验</text>
+      </view>
+      <view class="type-item {{recommendType === 'hotel' ? 'active' : ''}}" bindtap="selectType" data-type="hotel">
+        <text class="icon">🏨</text>
+        <text class="name">冷门酒店</text>
+        <text class="desc">特色住宿推荐</text>
+      </view>
+      <view class="type-item {{recommendType === 'restaurant' ? 'active' : ''}}" bindtap="selectType" data-type="restaurant">
+        <text class="icon">🍴</text>
+        <text class="name">冷门餐厅</text>
+        <text class="desc">小众美食探索</text>
+      </view>
+    </view>
+  </view>
+  
+  <view class="section filter-card">
+    <text class="section-title">筛选条件</text>
+    
+    <view class="filter-group">
+      <text class="label">出行月份</text>
+      <view class="tag-list">
+        <block wx:for="{{months}}" wx:key="*this">
+          <view class="tag {{selectedMonth === item ? 'active' : ''}}" bindtap="selectMonth" data-value="{{item}}">{{item}}</view>
+        </block>
+      </view>
+    </view>
+    
+    <view class="filter-group">
+      <text class="label">旅行时长</text>
+      <view class="tag-list">
+        <view class="tag {{duration === '1-3' ? 'active' : ''}}" bindtap="selectDuration" data-value="1-3">1-3天</view>
+        <view class="tag {{duration === '4-7' ? 'active' : ''}}" bindtap="selectDuration" data-value="4-7">4-7天</view>
+        <view class="tag {{duration === '8+' ? 'active' : ''}}" bindtap="selectDuration" data-value="8+">8天以上</view>
+      </view>
+    </view>
+    
+    <view class="filter-group">
+      <text class="label">交通方式</text>
+      <view class="tag-list">
+        <view class="tag {{transport === 'car' ? 'active' : ''}}" bindtap="selectTransport" data-value="car">🚗 自驾</view>
+        <view class="tag {{transport === 'flight' ? 'active' : ''}}" bindtap="selectTransport" data-value="flight">✈️ 飞机</view>
+        <view class="tag {{transport === 'train' ? 'active' : ''}}" bindtap="selectTransport" data-value="train">🚂 火车</view>
+      </view>
+    </view>
+    
+    <view class="filter-group">
+      <text class="label">路程距离</text>
+      <view class="tag-list">
+        <view class="tag {{distance === 'short' ? 'active' : ''}}" bindtap="selectDistance" data-value="short">近程</view>
+        <view class="tag {{distance === 'medium' ? 'active' : ''}}" bindtap="selectDistance" data-value="medium">中程</view>
+        <view class="tag {{distance === 'long' ? 'active' : ''}}" bindtap="selectDistance" data-value="long">远程</view>
+      </view>
+    </view>
+  </view>
+  
+  <view class="footer-btn">
+    <button class="generate-btn" bindtap="generateRecommendation">✨ 生成推荐</button>
+  </view>
+</view>

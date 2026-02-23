@@ -29,6 +29,12 @@ Page({
     showCategory: false
   },
 
+  goHome() {
+    wx.reLaunch({
+      url: '/pages/portal/index'
+    });
+  },
+
   onLoad(options) {
     if (options.id) {
       this.setData({

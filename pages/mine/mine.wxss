@@ -2,6 +2,23 @@
   padding: 0;
   align-items: stretch;
   background-color: #f8f8f8;
+  position: relative;
+}
+
+.top-bar {
+  position: absolute;
+  top: 40rpx;
+  left: 30rpx;
+  z-index: 100;
+}
+
+.home-btn {
+  font-size: 24rpx;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8rpx 20rpx;
+  border-radius: 30rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.5);
+  color: white;
 }
 
 .user-section {

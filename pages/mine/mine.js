@@ -60,6 +60,12 @@ Page({
     wx.navigateTo({ url });
   },
 
+  navToPortal() {
+    wx.reLaunch({
+      url: '/pages/portal/index'
+    });
+  },
+
   clearCache() {
     wx.showModal({
       title: '提示',
@@ -69,7 +75,7 @@ Page({
           wx.clearStorageSync();
           wx.showToast({ title: '清理成功' });
           setTimeout(() => {
-            wx.reLaunch({ url: '/pages/index/index' });
+            wx.reLaunch({ url: '/pages/portal/index' });
           }, 1000);
         }
       }

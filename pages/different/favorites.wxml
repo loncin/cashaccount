@@ -1,0 +1,24 @@
+<view class="container">
+  <view class="empty-state" wx:if="{{favorites.length === 0}}">
+    <text class="icon">🏜️</text>
+    <text class="tip">暂无收藏行程，快去生成吧</text>
+    <button class="go-btn" bindtap="goToGenerate">去生成</button>
+  </view>
+
+  <view class="favorite-list" wx:else>
+    <block wx:for="{{favorites}}" wx:key="_id">
+      <view class="favorite-item" bindtap="viewDetail" data-index="{{index}}">
+        <view class="item-header">
+          <text class="type-tag">{{item.type}}</text>
+          <text class="date">{{item.displayTime}}</text>
+        </view>
+        <text class="title">{{item.title}}</text>
+        <text class="intro">{{item.intro}}</text>
+        <view class="item-footer">
+          <text class="detail-link">查看详情 ></text>
+          <view class="delete-btn" catchtap="deleteItem" data-id="{{item._id}}">删除</view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

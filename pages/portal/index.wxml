@@ -1,0 +1,42 @@
+<view class="container">
+  <view class="header">
+    <view class="logo">✨</view>
+    <text class="title">智选协作</text>
+    <text class="subtitle">AI 智能推荐 · 团队协作记账</text>
+  </view>
+  
+  <view class="portal-grid">
+    <view class="portal-item different" bindtap="goToDifferent">
+      <view class="icon-wrap">
+        <text class="icon">🏔️</text>
+      </view>
+      <view class="content">
+        <text class="name">来点不一样的</text>
+        <text class="desc">AI 驱动的冷门目的地推荐</text>
+      </view>
+      <view class="arrow">➡️</view>
+    </view>
+    
+    <view class="portal-item bookkeeping" bindtap="goToBookkeeping">
+      <view class="icon-wrap">
+        <text class="icon">💰</text>
+      </view>
+      <view class="content">
+        <text class="name">协作记账</text>
+        <text class="desc">多人共享，账目清晰明了</text>
+      </view>
+      <view class="arrow">➡️</view>
+    </view>
+  </view>
+
+  <view class="secondary-actions">
+    <view class="action-item" bindtap="goToFavorites">
+      <text class="icon">❤️</text>
+      <text class="label">我的收藏行程</text>
+    </view>
+  </view>
+  
+  <view class="footer">
+    <text>© 2026 智选协作 · DeepSeek AI 提供动力</text>
+  </view>
+</view>

@@ -4,6 +4,22 @@
   justify-content: flex-start;
 }
 
+.top-bar {
+  width: 100%;
+  display: flex;
+  padding: 20rpx 30rpx;
+  box-sizing: border-box;
+}
+
+.home-btn {
+  font-size: 24rpx;
+  background: #f8f9fa;
+  padding: 8rpx 20rpx;
+  border-radius: 30rpx;
+  border: 1rpx solid #eee;
+  color: #666;
+}
+
 .type-switch {
   display: flex;
   width: 90%;

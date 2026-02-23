@@ -1,0 +1,58 @@
+<view class="container">
+  <view class="result-header">
+    <text class="type-tag">{{recommendation.type}}</text>
+    <view class="ai-tag">DeepSeek AI 生成</view>
+  </view>
+  
+  <view class="content-card">
+    <text class="title">{{recommendation.title}}</text>
+    <text class="intro">{{recommendation.intro}}</text>
+    
+    <view class="section-box reason-box">
+      <view class="section-header">
+        <text class="icon">💡</text>
+        <text class="label">推荐理由</text>
+      </view>
+      <text class="text">{{recommendation.reason}}</text>
+    </view>
+    
+    <view class="itinerary-section">
+      <view class="section-header">
+        <text class="icon">📍</text>
+        <text class="label">行程安排</text>
+      </view>
+      <view class="itinerary-list">
+        <block wx:for="{{recommendation.itinerary}}" wx:key="day">
+          <view class="itinerary-item">
+            <view class="day-num">{{index + 1}}</view>
+            <view class="day-content">
+              <text class="day-title">第{{item.day}}天：{{item.title}}</text>
+              <text class="day-desc">{{item.desc}}</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+    
+    <view class="section-box notice-box">
+      <view class="section-header">
+        <text class="icon">⚠️</text>
+        <text class="label">注意事项</text>
+      </view>
+      <view class="notice-list">
+        <block wx:for="{{recommendation.notices}}" wx:key="*this">
+          <view class="notice-item">
+            <text class="icon">💡</text>
+            <text class="text">{{item}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+  
+  <view class="footer-actions">
+    <button class="btn btn-regenerate" bindtap="regenerate">{{isFromShare ? '我也要玩' : '🔄 重新生成'}}</button>
+    <button class="btn btn-collect" bindtap="collect" wx:if="{{!recommendation._id}}">❤️ 收藏</button>
+    <button class="btn btn-share" open-type="share" wx:if="{{recommendation._id}}">📤 分享给好友</button>
+  </view>
+</view>

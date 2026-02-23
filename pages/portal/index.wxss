@@ -1,0 +1,136 @@
+.container {
+  padding: 40rpx;
+  background-color: #f7f8fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  margin-top: 60rpx;
+  margin-bottom: 80rpx;
+  text-align: center;
+}
+
+.logo {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.title {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+}
+
+.subtitle {
+  font-size: 24rpx;
+  color: #888;
+  margin-top: 10rpx;
+  display: block;
+}
+
+.portal-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  flex: 1;
+}
+
+.portal-item {
+  display: flex;
+  align-items: center;
+  padding: 40rpx;
+  border-radius: 20rpx;
+  background-color: #fff;
+  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.05);
+  position: relative;
+  transition: all 0.2s;
+}
+
+.portal-item:active {
+  transform: scale(0.98);
+}
+
+.icon-wrap {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background-color: rgba(106, 90, 205, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 30rpx;
+}
+
+.icon {
+  font-size: 48rpx;
+}
+
+.different .icon-wrap {
+  background-color: rgba(106, 90, 205, 0.1);
+}
+
+.bookkeeping .icon-wrap {
+  background-color: rgba(0, 191, 255, 0.1);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.desc {
+  font-size: 24rpx;
+  color: #888;
+  margin-top: 4rpx;
+}
+
+.arrow {
+  font-size: 32rpx;
+  color: #ccc;
+}
+
+.secondary-actions {
+  margin-top: 40rpx;
+  display: flex;
+  justify-content: center;
+}
+
+.action-item {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  padding: 20rpx 40rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+}
+
+.action-item .icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+}
+
+.action-item .label {
+  font-size: 26rpx;
+  color: #6A5ACD;
+  font-weight: 500;
+}
+
+.footer {
+  padding: 40rpx 0;
+  text-align: center;
+}
+
+.footer text {
+  font-size: 22rpx;
+  color: #bbb;
+}

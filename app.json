@@ -1,5 +1,9 @@
 {
   "pages": [
+    "pages/portal/index",
+    "pages/different/index",
+    "pages/different/result",
+    "pages/different/favorites",
     "pages/index/index",
     "pages/stats/stats",
     "pages/add/add",
