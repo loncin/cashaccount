@@ -27,6 +27,11 @@
         <text class="name">冷门餐厅</text>
         <text class="desc">小众美食探索</text>
       </view>
+      <view class="type-item {{recommendType === 'attraction' ? 'active' : ''}}" bindtap="selectType" data-type="attraction">
+        <text class="icon">🎡</text>
+        <text class="name">冷门景点</text>
+        <text class="desc">人稀景美的好去处</text>
+      </view>
     </view>
   </view>
   

@@ -57,6 +57,10 @@
   background-color: #f0f0ff;
 }
 
+.type-item:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
 .type-item .icon {
   font-size: 48rpx;
   margin-bottom: 10rpx;

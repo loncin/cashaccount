@@ -1,0 +1,9 @@
+{
+  "name": "differentApi",
+  "version": "1.0.0",
+  "description": "API for Something Different feature",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

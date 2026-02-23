@@ -11,7 +11,7 @@ Page({
     wx.showLoading({ title: '加载中...' });
     try {
       const res = await wx.cloud.callFunction({
-        name: 'cloudApi',
+        name: 'differentApi',
         data: {
           action: 'getFavorites',
           data: {}
@@ -57,7 +57,7 @@ Page({
           wx.showLoading({ title: '删除中...' });
           try {
             await wx.cloud.callFunction({
-              name: 'cloudApi',
+              name: 'differentApi',
               data: {
                 action: 'deleteFavorite',
                 data: { id }

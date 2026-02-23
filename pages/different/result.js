@@ -22,7 +22,7 @@ Page({
     wx.showLoading({ title: '加载分享中...' });
     try {
       const res = await wx.cloud.callFunction({
-        name: 'cloudApi',
+        name: 'differentApi',
         data: {
           action: 'getFavoriteById',
           data: { id }
@@ -86,7 +86,7 @@ Page({
     wx.showLoading({ title: '保存中...' });
     try {
       const res = await wx.cloud.callFunction({
-        name: 'cloudApi',
+        name: 'differentApi',
         data: {
           action: 'addFavorite',
           data: { recommendation }

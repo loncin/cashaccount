@@ -34,7 +34,7 @@ Page({
     wx.showLoading({ title: 'AI 思考中...' });
     
     wx.cloud.callFunction({
-      name: 'cloudApi',
+      name: 'differentApi',
       data: {
         action: 'getDifferentRecommendation',
         data: {
@@ -44,6 +44,9 @@ Page({
           transport,
           distance
         }
+      },
+      config: {
+        timeout: 60000
       },
       success: (res) => {
         if (res.result && res.result.recommendation) {
