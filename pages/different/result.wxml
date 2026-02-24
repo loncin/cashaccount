@@ -1,7 +1,7 @@
 <view class="container">
   <view class="result-header">
     <text class="type-tag">{{recommendation.type}}</text>
-    <view class="ai-tag">DeepSeek AI 生成</view>
+    <!-- <view class="ai-tag">DeepSeek AI 生成</view> -->
   </view>
   
   <view class="content-card">

@@ -10,7 +10,7 @@ exports.main = async (event, context) => {
   try {
     switch (action) {
       case 'getDifferentRecommendation': {
-        const { recommendType, selectedMonth, duration, transport, distance } = data;
+        const { recommendType, selectedMonth, duration, transport, distance, customDistance } = data;
         const typeMap = {
           'destination': '冷门目的地', 'flight': '冷门航班', 'hotel': '冷门酒店', 
           'restaurant': '冷门餐厅', 'attraction': '冷门景点'
@@ -18,8 +18,10 @@ exports.main = async (event, context) => {
         
         const typeLabel = typeMap[recommendType] || '冷门目的地';
         
+        const distanceLabel = customDistance ? `${customDistance}km以内` : (distance === 'short' ? '200km以内' : (distance === 'medium' ? '200-500km' : (distance === 'long' ? '500-800km' : '800km以上')));
+        
         // 1. 更加明确的 Prompt，强制指定键名
-        const prompt = `你是一个专业的旅游规划师。请推荐一个${typeLabel}。条件：${selectedMonth}出行，时长${duration}，交通${transport}，距离${distance}。
+        const prompt = `你是一个专业的旅游规划师。请推荐一个${typeLabel}。条件：${selectedMonth}出行，时长${duration}，交通${transport}，距离${distanceLabel}。
         必须严格按以下格式返回 JSON：
         {
           "title": "目的地名称",

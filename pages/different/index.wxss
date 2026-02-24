@@ -117,6 +117,24 @@
   color: #fff;
 }
 
+.slider-box {
+  margin-top: 30rpx;
+  padding: 0 10rpx;
+}
+
+.slider-tip {
+  text-align: center;
+  font-size: 24rpx;
+  color: #888;
+  margin-top: 10rpx;
+}
+
+.slider-tip .highlight {
+  color: #6A5ACD;
+  font-weight: bold;
+  font-size: 28rpx;
+}
+
 .footer-btn {
   padding: 40rpx 0;
 }

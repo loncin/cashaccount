@@ -5,7 +5,8 @@ Page({
     selectedMonth: '1月',
     duration: '1-3',
     transport: 'car',
-    distance: 'short'
+    distance: 'short',
+    customDistance: 200
   },
 
   selectType(e) {
@@ -25,7 +26,30 @@ Page({
   },
 
   selectDistance(e) {
-    this.setData({ distance: e.currentTarget.dataset.value });
+    const value = e.currentTarget.dataset.value;
+    let customDistance = this.data.customDistance;
+    if (value === 'short') customDistance = 200;
+    else if (value === 'medium') customDistance = 500;
+    else if (value === 'long') customDistance = 800;
+    else if (value === 'extra-long') customDistance = 1500;
+    
+    this.setData({ 
+      distance: value,
+      customDistance
+    });
+  },
+
+  onDistanceSliderChange(e) {
+    const val = e.detail.value;
+    let distance = 'extra-long';
+    if (val <= 200) distance = 'short';
+    else if (val <= 500) distance = 'medium';
+    else if (val <= 800) distance = 'long';
+    
+    this.setData({
+      customDistance: val,
+      distance: distance
+    });
   },
 
   generateRecommendation() {
@@ -42,7 +66,8 @@ Page({
           selectedMonth,
           duration,
           transport,
-          distance
+          distance,
+          customDistance: this.data.customDistance
         }
       },
       config: {

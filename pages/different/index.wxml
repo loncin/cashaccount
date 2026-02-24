@@ -1,7 +1,7 @@
 <view class="container">
   <view class="header">
     <text class="title">✨ 来点不一样的</text>
-    <text class="subtitle">AI 驱动的冷门推荐</text>
+    <!-- <text class="subtitle">AI 驱动的冷门推荐</text> -->
   </view>
   
   <view class="section card">
@@ -68,9 +68,19 @@
     <view class="filter-group">
       <text class="label">路程距离</text>
       <view class="tag-list">
-        <view class="tag {{distance === 'short' ? 'active' : ''}}" bindtap="selectDistance" data-value="short">近程</view>
-        <view class="tag {{distance === 'medium' ? 'active' : ''}}" bindtap="selectDistance" data-value="medium">中程</view>
-        <view class="tag {{distance === 'long' ? 'active' : ''}}" bindtap="selectDistance" data-value="long">远程</view>
+        <view class="tag {{distance === 'short' ? 'active' : ''}}" bindtap="selectDistance" data-value="short">近程(200km以内)</view>
+        <view class="tag {{distance === 'medium' ? 'active' : ''}}" bindtap="selectDistance" data-value="medium">中程(200km-500km)</view>
+        <view class="tag {{distance === 'long' ? 'active' : ''}}" bindtap="selectDistance" data-value="long">远程(500km-800km)</view>
+        <view class="tag {{distance === 'extra-long' ? 'active' : ''}}" bindtap="selectDistance" data-value="extra-long">超远程(大于 800km)</view>
+      </view>
+      
+      <view class="slider-box">
+        <slider bindchange="onDistanceSliderChange" bindchanging="onDistanceSliderChange" min="50" max="2000" step="50" value="{{customDistance}}" activeColor="#6A5ACD" block-size="20"/>
+        <view class="slider-tip">
+          <text>当前设置：</text>
+          <text class="highlight">{{customDistance}} km</text>
+          <text> 以内</text>
+        </view>
       </view>
     </view>
   </view>
