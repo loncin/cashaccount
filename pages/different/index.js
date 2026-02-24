@@ -50,14 +50,17 @@ Page({
       },
       success: (res) => {
         if (res.result && res.result.recommendation) {
-          // 将推荐结果存入全局或通过 URL 传递
-          // 这里通过存储传递复杂对象
           wx.setStorageSync('lastRecommendation', res.result.recommendation);
           wx.navigateTo({
             url: '/pages/different/result'
           });
         } else {
-          wx.showToast({ title: '推荐生成失败，请重试', icon: 'none' });
+          const errMsg = res.result && res.result.error ? res.result.error : '未知错误';
+          wx.showModal({
+            title: '生成失败',
+            content: `AI 调用异常: ${errMsg}`,
+            showCancel: false
+          });
         }
       },
       fail: (err) => {

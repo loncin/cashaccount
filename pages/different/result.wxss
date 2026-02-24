@@ -1,9 +1,11 @@
 .container {
-  padding: 40rpx;
+  padding: 30rpx;
   background-color: #6A5ACD;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  box-sizing: border-box;
 }
 
 .result-header {
@@ -12,12 +14,13 @@
   align-items: center;
   margin-bottom: 30rpx;
   color: #fff;
+  width: 100%;
 }
 
 .type-tag {
   font-size: 28rpx;
   background-color: rgba(255, 255, 255, 0.2);
-  padding: 8rpx 20rpx;
+  padding: 8rpx 24rpx;
   border-radius: 40rpx;
 }
 
@@ -33,22 +36,26 @@
   border-radius: 24rpx;
   padding: 40rpx;
   flex: 1;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .title {
   font-size: 40rpx;
   font-weight: bold;
   color: #333;
-  display: block;
   margin-bottom: 20rpx;
+  display: block;
 }
 
 .intro {
   font-size: 28rpx;
   color: #666;
   line-height: 1.6;
-  display: block;
   margin-bottom: 40rpx;
+  display: block;
 }
 
 .section-box {
