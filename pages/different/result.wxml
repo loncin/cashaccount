@@ -1,32 +1,70 @@
 <view class="container">
   <view class="result-header">
-    <text class="type-tag">{{recommendation.type}}</text>
-    <!-- <view class="ai-tag">DeepSeek AI 生成</view> -->
+    <view class="header-left">
+      <text class="type-tag">{{recommendation.type}}</text>
+    </view>
+    <view class="header-right">
+      <view class="ai-badge">
+        <text class="ai-icon">✨</text>
+        <text>AI Smart Recommendation</text>
+      </view>
+    </view>
   </view>
   
-  <view class="content-card">
-    <text class="title">{{recommendation.title}}</text>
+  <view class="content-card shadow-lg">
+    <view class="title-section">
+      <view class="title-row">
+        <text class="title">{{recommendation.title}}</text>
+        <view class="nav-btn" bindtap="openMap" wx:if="{{recommendation.location}}">
+          <text class="icon">🚀</text>
+          <text>导航</text>
+        </view>
+      </view>
+      <view class="divider"></view>
+    </view>
+    
     <text class="intro">{{recommendation.intro}}</text>
     
-    <view class="section-box reason-box">
+    <view class="weather-section" wx:if="{{recommendation.weather}}">
       <view class="section-header">
-        <text class="icon">💡</text>
-        <text class="label">推荐理由</text>
+        <text class="icon">🌤️</text>
+        <text class="label">天气预览</text>
       </view>
-      <text class="text">{{recommendation.reason}}</text>
+      <view class="weather-card">
+        <view class="weather-main">
+          <text class="temp">{{recommendation.weather.temp}}</text>
+          <text class="desc">{{recommendation.weather.desc}}</text>
+        </view>
+        <view class="weather-tips">
+          <text class="tips-label">💡 出行建议：</text>
+          <text class="tips-text">{{recommendation.weather.tips}}</text>
+        </view>
+      </view>
+    </view>
+    
+    <view class="highlight-section">
+      <view class="section-header">
+        <text class="icon">✨</text>
+        <text class="label">深度亮点</text>
+      </view>
+      <view class="reason-content">
+        <text class="text">{{recommendation.reason}}</text>
+      </view>
     </view>
     
     <view class="itinerary-section">
       <view class="section-header">
-        <text class="icon">📍</text>
-        <text class="label">行程安排</text>
+        <text class="icon">🗓️</text>
+        <text class="label">精心规划</text>
       </view>
-      <view class="itinerary-list">
+      <view class="timeline">
         <block wx:for="{{recommendation.itinerary}}" wx:key="day">
-          <view class="itinerary-item">
-            <view class="day-num">{{index + 1}}</view>
-            <view class="day-content">
-              <text class="day-title">第{{item.day}}天：{{item.title}}</text>
+          <view class="timeline-item">
+            <view class="timeline-line"></view>
+            <view class="timeline-dot"></view>
+            <view class="timeline-content">
+              <view class="day-badge">Day {{item.day}}</view>
+              <text class="day-title">{{item.title}}</text>
               <text class="day-desc">{{item.desc}}</text>
             </view>
           </view>
@@ -34,16 +72,16 @@
       </view>
     </view>
     
-    <view class="section-box notice-box">
+    <view class="tips-section">
       <view class="section-header">
-        <text class="icon">⚠️</text>
-        <text class="label">注意事项</text>
+        <text class="icon">💡</text>
+        <text class="label">旅行贴士</text>
       </view>
-      <view class="notice-list">
+      <view class="tips-grid">
         <block wx:for="{{recommendation.notices}}" wx:key="*this">
-          <view class="notice-item">
-            <text class="icon">💡</text>
-            <text class="text">{{item}}</text>
+          <view class="tip-item">
+            <text class="tip-dot">•</text>
+            <text class="tip-text">{{item}}</text>
           </view>
         </block>
       </view>

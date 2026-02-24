@@ -6,7 +6,53 @@ Page({
     duration: '1-3',
     transport: 'car',
     distance: 'short',
-    customDistance: 200
+    customDistance: 200,
+    locationName: '点击选择出发地',
+    locationCoords: null,
+    budget: 'comfort',
+    selectedPreferences: ['nature']
+  },
+
+  selectPreference(e) {
+    const value = e.currentTarget.dataset.value;
+    let selectedPreferences = this.data.selectedPreferences;
+    const index = selectedPreferences.indexOf(value);
+    if (index > -1) {
+      if (selectedPreferences.length > 1) {
+        selectedPreferences.splice(index, 1);
+      } else {
+        wx.showToast({ title: '至少选择一项偏好', icon: 'none' });
+      }
+    } else {
+      selectedPreferences.push(value);
+    }
+    this.setData({ selectedPreferences });
+  },
+
+  selectBudget(e) {
+    this.setData({ budget: e.currentTarget.dataset.value });
+  },
+
+  onLoad() {
+    // 首次进入不再强制自动定位，引导用户点击选择或使用默认
+  },
+
+  getLocation() {
+    wx.chooseLocation({
+      success: (res) => {
+        this.setData({
+          locationName: res.name || res.address,
+          locationCoords: {
+            latitude: res.latitude,
+            longitude: res.longitude
+          }
+        });
+      },
+      fail: (err) => {
+        console.log('用户取消或选择失败', err);
+        // 如果是权限问题，可以引导打开设置
+      }
+    });
   },
 
   selectType(e) {
@@ -53,7 +99,7 @@ Page({
   },
 
   generateRecommendation() {
-    const { recommendType, selectedMonth, duration, transport, distance } = this.data;
+    const { recommendType, selectedMonth, duration, transport, distance, budget, selectedPreferences } = this.data;
     
     wx.showLoading({ title: 'AI 思考中...' });
     
@@ -67,7 +113,11 @@ Page({
           duration,
           transport,
           distance,
-          customDistance: this.data.customDistance
+          budget,
+          preferences: selectedPreferences,
+          customDistance: this.data.customDistance,
+          startLocation: this.data.locationName,
+          coords: this.data.locationCoords
         }
       },
       config: {

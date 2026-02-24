@@ -42,5 +42,10 @@
     ]
   },
   "style": "v2",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "您的位置信息将用于计算目的地距离，为您推荐合适的旅行方案"
+    }
+  },
   "sitemapLocation": "sitemap.json"
 }

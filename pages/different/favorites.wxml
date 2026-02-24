@@ -15,8 +15,8 @@
         <text class="title">{{item.title}}</text>
         <text class="intro">{{item.intro}}</text>
         <view class="item-footer">
-          <text class="detail-link">查看详情 ></text>
-          <view class="delete-btn" catchtap="deleteItem" data-id="{{item._id}}">删除</view>
+          <text class="detail-link">探索详情</text>
+          <view class="delete-btn" catchtap="deleteItem" data-id="{{item._id}}">移除收藏</view>
         </view>
       </view>
     </block>

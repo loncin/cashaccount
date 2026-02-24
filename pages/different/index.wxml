@@ -38,6 +38,17 @@
   <view class="section filter-card">
     <text class="section-title">筛选条件</text>
     
+    <view class="filter-group location-bar" bindtap="getLocation">
+      <view class="location-info">
+        <text class="icon">📍</text>
+        <text class="location-text">{{locationName}}</text>
+      </view>
+      <view class="refresh-btn">
+        <text class="icon-refresh">🗺️</text>
+        <text>选择位置</text>
+      </view>
+    </view>
+    
     <view class="filter-group">
       <text class="label">出行月份</text>
       <view class="tag-list">
@@ -83,7 +94,33 @@
         </view>
       </view>
     </view>
+
+    <view class="filter-group">
+      <text class="label">预算范围</text>
+      <view class="tag-list">
+        <view class="tag {{budget === 'economy' ? 'active' : ''}}" bindtap="selectBudget" data-value="economy">💰 经济实惠</view>
+        <view class="tag {{budget === 'comfort' ? 'active' : ''}}" bindtap="selectBudget" data-value="comfort">🧧 舒适体验</view>
+        <view class="tag {{budget === 'luxury' ? 'active' : ''}}" bindtap="selectBudget" data-value="luxury">💎 豪华品质</view>
+      </view>
+    </view>
+
+    <view class="filter-group">
+      <text class="label">旅行偏好 (多选)</text>
+      <view class="tag-list">
+        <view class="tag {{util.includes(selectedPreferences, 'nature') ? 'active' : ''}}" bindtap="selectPreference" data-value="nature">🌲 自然风光</view>
+        <view class="tag {{util.includes(selectedPreferences, 'culture') ? 'active' : ''}}" bindtap="selectPreference" data-value="culture">🏛️ 历史人文</view>
+        <view class="tag {{util.includes(selectedPreferences, 'food') ? 'active' : ''}}" bindtap="selectPreference" data-value="food">🍳 地道美食</view>
+        <view class="tag {{util.includes(selectedPreferences, 'photo') ? 'active' : ''}}" bindtap="selectPreference" data-value="photo">📸 拍照出片</view>
+        <view class="tag {{util.includes(selectedPreferences, 'adventure') ? 'active' : ''}}" bindtap="selectPreference" data-value="adventure">🧗 户外冒险</view>
+      </view>
+    </view>
   </view>
+
+  <wxs module="util">
+    module.exports.includes = function(arr, val) {
+      return arr.indexOf(val) !== -1;
+    }
+  </wxs>
   
   <view class="footer-btn">
     <button class="generate-btn" bindtap="generateRecommendation">✨ 生成推荐</button>

@@ -103,5 +103,20 @@ Page({
       console.error('收藏失败', err);
       wx.showToast({ title: '收藏失败', icon: 'none' });
     }
+  },
+
+  openMap() {
+    const { recommendation } = this.data;
+    if (!recommendation || !recommendation.location) return;
+
+    const { latitude, longitude, address, title } = recommendation.location;
+    
+    wx.openLocation({
+      latitude: parseFloat(latitude),
+      longitude: parseFloat(longitude),
+      name: recommendation.title,
+      address: address || '',
+      scale: 15
+    });
   }
 })
